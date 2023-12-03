@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa y Dashboard</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=TU_API_KEY&libraries=places"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        #container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        #map {
+            height: 300px;
+            width: 100%;
+            border-bottom: 2px solid #ccc;
+        }
+
+        #controls {
+            padding: 15px;
+            background-color: #3498db;
+            color: #fff;
+            text-align: center;
+        }
+
+        select,
+        button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #2980b9;
+            color: #fff;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+
+        #dashboard {
+            padding: 20px;
+            text-align: center;
+        }
+
+        canvas {
+            max-width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <label for="ciudad">Ciudad:</label>
+        <select id="ciudad">
+            <!-- Opciones de ciudades reales -->
+            <option value="Paris">París</option>
+            <option value="New York">Nueva York</option>
+            <!-- Agrega más ciudades según tu necesidad -->
+        </select>
+        <label for="barrio">Barrio:</label>
+        <select id="barrio">
+            <!-- Opciones de barrios reales -->
+            <option value="Manhattan">Manhattan</option>
+            <option value="Le Marais">Le Marais</option>
+            <!-- Agrega más barrios según tu necesidad -->
+        </select>
+        <label for="pais">País:</label>
+        <select id="pais">
+            <!-- Opciones de países reales -->
+            <option value="France">Francia</option>
+            <option value="USA">Estados Unidos</option>
+            <!-- Agrega más países según tu necesidad -->
+        </select>
+        <button onclick="buscarLugar()">Buscar Lugar</button>
+    </div>
+
+    <div id="map"></div>
+
+    <div>
+        <h2>Dashboard</h2>
+        <canvas id="chart"></canvas>
+    </div>
+
+    <script>
+        var map;
+        var polygon;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 0, lng: 0 },
+                zoom: 2
+            });
+        }
+
+        function buscarLugar() {
+            var ciudadSeleccionada = document.getElementById('ciudad').value;
+            var barrioSeleccionado = document.getElementById('barrio').value;
+            var paisSeleccionado = document.getElementById('pais').value;
+
+            // Aquí deberías llamar a tu backend o API para obtener las coordenadas reales de la ubicación seleccionada
+            // Por ahora, usaremos coordenadas de ejemplo
+            var coordenadasEjemplo = obtenerCoordenadas(ciudadSeleccionada);
+
+            // Actualiza el mapa
+            actualizarMapa(coordenadasEjemplo);
+
+            // Actualiza el dashboard (aquí puedes llamar a tu backend para obtener datos reales)
+            actualizarDashboard();
+        }
+
+        function obtenerCoordenadas(ciudad) {
+            // En un escenario real, esta función debería hacer una solicitud al backend para obtener las coordenadas reales
+            // Aquí proporcionamos coordenadas de ejemplo para París, Nueva York y otras ciudades
+            var coordenadasPorCiudad = {
+                'Paris': [
+                    { lat: 48.8566, lng: 2.3522 },
+                    { lat: 48.8566, lng: 2.3522 + 0.1 },
+                    { lat: 48.8566 + 0.1, lng: 2.3522 + 0.1 },
+                    { lat: 48.8566 + 0.1, lng: 2.3522 },
+                ],
+                'New York': [
+                    { lat: 40.7128, lng: -74.0060 },
+                    { lat: 40.7128, lng: -74.0060 + 0.1 },
+                    { lat: 40.7128 + 0.1, lng: -74.0060 + 0.1 },
+                    { lat: 40.7128 + 0.1, lng: -74.0060 },
+                ],
+                // Agrega más coordenadas según tu necesidad
+            };
+
+            return coordenadasPorCiudad[ciudad] || [];
+        }
+
+        function actualizarMapa(coordenadas) {
+            // Elimina el polígono anterior si existe
+            if (polygon) {
+                polygon.setMap(null);
+            }
+
+            // Crea un polígono con las coordenadas
+            polygon = new google.maps.Polygon({
+                paths: coordenadas,
+                strokeColor: '#3498db',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: '#3498db',
+                fillOpacity: 0.2,
+            });
+
+            // Calcula el punto medio del polígono
+            var bounds = new google.maps.LatLngBounds();
+            coordenadas.forEach(function (coordenada) {
+                bounds.extend(new google.maps.LatLng(coordenada.lat, coordenada.lng));
+            });
+
+            // Centra el mapa en el punto medio del polígono
+            map.fitBounds(bounds);
+
+            // Dibuja el polígono en el mapa
+            polygon.setMap(map);
+        }
+
+        function actualizarDashboard() {
+            // Aquí deberías llamar a tu backend o API para obtener datos reales para el dashboard
+            // Por ahora, usaremos datos de ejemplo
+            var datosEjemplo = [10, 20, 30]; // Reemplaza esto con datos reales
+
+            // Actualiza el gráfico con los datos
+            var ctx = document.getElementById('chart').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Dato 1', 'Dato 2', 'Dato 3'],
+                    datasets: [{
+                        label: 'Ejemplo de Datos',
+                        data: datosEjemplo,
+                        backgroundColor: [
+                            'rgba(52, 152, 219, 0.5)',
+                            'rgba(155, 89, 182, 0.5)',
+                            'rgba(46, 204, 113, 0.5)',
+                        ],
+                        borderColor: [
+                            'rgba(52, 152, 219, 1)',
+                            'rgba(155, 89, 182, 1)',
+                            'rgba(46, 204, 113, 1)',
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCGkOZ6ZpmOXnNsS-JJlt81bixb6oDOKZo&callback=initMap"></script>
+</body>
+
+</html>
