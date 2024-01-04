@@ -140,8 +140,22 @@
 
             geocoder.geocode(ubicacion, function (results) {
                 if (results && results.length > 0) {
-                    var ubicacion = results[0].center;
-                    actualizarMapa([ubicacion.lat, ubicacion.lng]);
+                    // Obtén los límites de la ubicación geocodificada
+                    var bounds = results[0].bounds;
+                    
+                    // Ajusta el mapa a los límites
+                    map.fitBounds(bounds);
+
+                    // Dibuja un polígono en lugar de agregar un marcador
+                    var polygon = L.polygon([
+                        bounds.getSouthWest(),
+                        bounds.getNorthWest(),
+                        bounds.getNorthEast(),
+                        bounds.getSouthEast()
+                    ]).addTo(drawnItems);
+                    
+                    // Guarda las coordenadas
+                    guardarCoordenadas(polygon.getLatLngs());
                 } else {
                     console.error('Error al geocodificar la ubicación.');
                 }
