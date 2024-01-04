@@ -14,7 +14,8 @@
     <script src="https://www.gstatic.com/firebasejs/7.15.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.15.0/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCGkOZ6ZpmOXnNsS-JJlt81bixb6oDOKZo&libraries=places&callback=initMap"></script>
+
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -108,7 +109,9 @@
             map.addControl(drawControl);
 
             // Agrega el geocodificador al mapa
-            var geocoder = L.Control.Geocoder.nominatim();
+            var geocoder = L.Control.geocoder({
+                geocoder: L.Control.Geocoder.nominatim(),
+            }).addTo(map);
 
             map.on('draw:created', function (e) {
                 var layer = e.layer;
@@ -132,18 +135,14 @@
         }
 
         function geocodeLocation(ubicacion) {
-            // Obtén el geocodificador desde el mapa
             var geocoder = L.Control.Geocoder.nominatim();
 
             geocoder.geocode(ubicacion, function (results) {
                 if (results && results.length > 0) {
-                    // Verifica si la respuesta tiene límites y son válidos
                     var bounds = results[0].bounds;
-                    if (bounds && bounds.isValid()) {
-                        // Ajusta el mapa a los límites
-                        map.fitBounds(bounds);
 
-                        // Dibuja un polígono en lugar de agregar un marcador
+                    if (bounds && bounds.isValid()) {
+                        map.fitBounds(bounds);
                         var polygon = L.polygon([
                             bounds.getSouthWest(),
                             bounds.getNorthWest(),
@@ -151,10 +150,10 @@
                             bounds.getSouthEast()
                         ]).addTo(drawnItems);
 
-                        // Guarda las coordenadas
                         guardarCoordenadas(polygon.getLatLngs());
                     } else {
                         console.error('Límites de respuesta no válidos.');
+                        map.setView(results[0].center, map.getZoom());
                     }
                 } else {
                     console.error('Error al geocodificar la ubicación.');
@@ -177,17 +176,13 @@
         }
 
         function updateChart(data) {
-            // Assuming 'data' contains the required information for the chart
-            // Update the chart labels and data based on your data structure
-            myChart.data.labels = ['Label1', 'Label2']; // Update with your labels
-            myChart.data.datasets[0].data = [10, 20]; // Update with your data values
+            myChart.data.labels = ['Label1', 'Label2'];
+            myChart.data.datasets[0].data = [10, 20];
             myChart.update();
         }
 
-        // Initialize the map and chart
         initMap();
 
-        // Create an empty chart initially
         myChart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -205,7 +200,6 @@
             }
         });
 
-        // Start updating the dashboard
         actualizarDashboard();
     </script>
 </body>
