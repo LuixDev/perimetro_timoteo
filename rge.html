@@ -123,9 +123,13 @@
             fetch(ciudadesApiUrl)
                 .then(response => response.json())
                 .then(data => {
-                    var ciudades = data.map(ciudad => ciudad.display_name);
-                    llenarSelect('ciudad', ciudades);
-                    llenarBarrios();
+                    if (!data.error) {
+                        var ciudades = data.map(ciudad => ciudad.display_name);
+                        llenarSelect('ciudad', ciudades);
+                        llenarBarrios();
+                    } else {
+                        throw new Error('Error en la solicitud de la lista de ciudades.');
+                    }
                 })
                 .catch(error => console.error('Error al obtener la lista de ciudades:', error));
         }
@@ -139,8 +143,12 @@
             fetch(barriosApiUrl)
                 .then(response => response.json())
                 .then(data => {
-                    var barrios = data.map(barrio => barrio.display_name);
-                    llenarSelect('barrio', barrios);
+                    if (!data.error) {
+                        var barrios = data.map(barrio => barrio.display_name);
+                        llenarSelect('barrio', barrios);
+                    } else {
+                        throw new Error('Error en la solicitud de la lista de barrios.');
+                    }
                 })
                 .catch(error => console.error('Error al obtener la lista de barrios:', error));
         }
@@ -158,6 +166,7 @@
 
             obtenerCoordenadas(direccion)
                 .then(coordenadas => {
+                    // Actualiza el mapa
                     actualizarMapa(coordenadas);
                     // Actualiza el dashboard
                     actualizarDashboard();
@@ -185,25 +194,26 @@
             }
 
             marker = L.marker(coordenadas).addTo(map);
+
             map.setView(coordenadas, 12);
         }
 
         function actualizarDashboard() {
-            // Aquí deberías llamar a tu backend o API para obtener datos reales para el dashboard
-            // Por ahora, usaremos datos de ejemplo
+            // Actualiza el dashboard con datos de ejemplo
             var datosEjemplo = [10, 20, 30];
-
             var dashboard = document.getElementById('dashboard');
             dashboard.innerHTML = '<h2>Dashboard</h2>' +
                 '<p>Dato 1: ' + datosEjemplo[0] + '</p>' +
                 '<p>Dato 2: ' + datosEjemplo[1] + '</p>' +
                 '<p>Dato 3: ' + datosEjemplo[2] + '</p>';
         }
+
+        // Inicializa el mapa
+        initMap();
     </script>
 </body>
 
 </html>
-
 
 
 
