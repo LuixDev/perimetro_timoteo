@@ -1,209 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa y Dashboard</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
-    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.15.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.15.0/firebase-database.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCGkOZ6ZpmOXnNsS-JJlt81bixb6oDOKZo&libraries=places&callback=initMap"></script>
-
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-
-        #container {
-            max-width: 800px;
-            margin: 20px auto;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        #map {
-            height: 300px;
-            width: 100%;
-            border-bottom: 2px solid #ccc;
-        }
-
-        #dashboard {
-            padding: 20px;
-            text-align: center;
-        }
-
-        canvas {
-            max-width: 100%;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa Interactivo</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+  <style>
+    #map {
+      height: 500px;
+    }
+  </style>
 </head>
-
 <body>
-    <div id="container">
-        <div>
-            <label for="ubicacion">Ubicación:</label>
-            <input type="text" id="ubicacion" placeholder="Escribe una ubicación (ciudad, país, barrio)">
-            <button onclick="buscarLugar()">Buscar Lugar</button>
-        </div>
+  <div>
+    <label for="searchInput">Buscar:</label>
+    <input type="text" id="searchInput" placeholder="Ingresa un lugar">
+    <button onclick="buscarUbicacion()">Buscar</button>
+  </div>
+  <div id="map"></div>
 
-        <div id="map"></div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+  <script>
+    // Inicializar el mapa
+    var map = L.map('map').setView([0, 0], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-        <div id="dashboard">
-            <h2>Dashboard</h2>
-            <canvas id="chart"></canvas>
-        </div>
-    </div>
+    // Agregar un control de búsqueda
+    var searchControl = L.Control.geocoder({
+      defaultMarkGeocode: false
+    }).on('markgeocode', function (e) {
+      map.setView(e.geocode.center, 13);
+      subrayarArea(e.geocode.center);
+    }).addTo(map);
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDa-sfn2Of0hF7UAjWr-ZXcUXYAy52sZOA",
-            authDomain: "erthrth-2fea7.firebaseapp.com",
-            databaseURL: "https://erthrth-2fea7-default-rtdb.firebaseio.com",
-            projectId: "erthrth-2fea7",
-            storageBucket: "erthrth-2fea7.appspot.com",
-            messagingSenderId: "422701116092",
-            appId: "1:422701116092:web:a4eddd98bad83835397eb9",
-            measurementId: "G-CXS7KTMSC6"
-        };
+    // Función para buscar ubicación
+    function buscarUbicacion() {
+      var searchTerm = document.getElementById('searchInput').value;
+      searchControl.geocode(searchTerm);
+    }
 
-        firebase.initializeApp(firebaseConfig);
-        var database = firebase.database();
-        var map;
-        var drawnItems;
-        var ctx = document.getElementById('chart').getContext('2d');
-        var myChart;
-
-        function initMap() {
-            map = L.map('map').setView([0, 0], 2);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-
-            drawnItems = new L.FeatureGroup();
-            map.addLayer(drawnItems);
-
-            var drawControl = new L.Control.Draw({
-                draw: {
-                    polygon: true,
-                    polyline: false,
-                    rectangle: false,
-                    circle: false,
-                    marker: false
-                },
-                edit: {
-                    featureGroup: drawnItems
-                }
-            });
-            map.addControl(drawControl);
-
-            // Agrega el geocodificador al mapa
-            var geocoder = L.Control.Geocoder.nominatim();
-            geocoder.addTo(map);
-
-            map.on('draw:created', function (e) {
-                var layer = e.layer;
-                drawnItems.clearLayers();
-                drawnItems.addLayer(layer);
-                guardarCoordenadas(layer.getLatLngs());
-            });
-        }
-
-        function buscarLugar() {
-            var ubicacionInput = document.getElementById('ubicacion');
-            var ubicacion = ubicacionInput.value;
-            geocodeLocation(ubicacion);
-        }
-
-        function guardarCoordenadas(coordenadas) {
-            var ubicacionRef = database.ref('ubicacion');
-            ubicacionRef.set({
-                coordenadas: coordenadas
-            });
-        }
-
-        function geocodeLocation(ubicacion) {
-            var geocoder = L.Control.Geocoder.nominatim();
-
-            geocoder.geocode(ubicacion, function (results) {
-                if (results && results.length > 0) {
-                    var bounds = results[0].bounds;
-
-                    if (bounds && bounds.isValid()) {
-                        // Dibuja un polígono en lugar de agregar un marcador
-                        var polygon = L.polygon([
-                            bounds.getSouthWest(),
-                            bounds.getNorthWest(),
-                            bounds.getNorthEast(),
-                            bounds.getSouthEast()
-                        ]).addTo(drawnItems);
-
-                        // Guarda las coordenadas
-                        guardarCoordenadas(polygon.getLatLngs());
-                    } else {
-                        console.error('Límites de respuesta no válidos.');
-                        map.setView(results[0].center, map.getZoom());
-                    }
-                } else {
-                    console.error('Error al geocodificar la ubicación.');
-                }
-            });
-        }
-
-        function actualizarMapa(coordenadas) {
-            drawnItems.clearLayers();
-            var polygon = L.polygon(coordenadas).addTo(drawnItems);
-            map.fitBounds(polygon.getBounds());
-        }
-
-        function actualizarDashboard() {
-            var ubicacionRef = database.ref('ubicacion');
-            ubicacionRef.on('value', function (snapshot) {
-                var data = snapshot.val();
-                updateChart(data);
-            });
-        }
-
-        function updateChart(data) {
-            myChart.data.labels = ['Label1', 'Label2'];
-            myChart.data.datasets[0].data = [10, 20];
-            myChart.update();
-        }
-
-        initMap();
-
-        myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Your Dataset',
-                    data: [],
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                // Your chart options go here
-            }
-        });
-
-        actualizarDashboard();
-    </script>
+    // Función para subrayar una zona en el mapa
+    function subrayarArea(coordinates) {
+      // Aquí puedes agregar lógica para dibujar polígonos o polilíneas en la zona específica
+      // Por ejemplo, puedes usar L.polygon o L.polyline de Leaflet
+      // Nota: Este es un ejemplo muy básico y debe adaptarse a tus necesidades
+      var polygon = L.polygon([
+        [coordinates.lat - 0.1, coordinates.lng - 0.1],
+        [coordinates.lat + 0.1, coordinates.lng - 0.1],
+        [coordinates.lat + 0.1, coordinates.lng + 0.1],
+        [coordinates.lat - 0.1, coordinates.lng + 0.1]
+      ]).addTo(map);
+    }
+  </script>
 </body>
-
 </html>
-
 
