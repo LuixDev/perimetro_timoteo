@@ -43,6 +43,8 @@
                 drawnItems.addLayer(layer);
                 guardarCoordenadas(layer.getLatLngs());
             });
+
+            return map;  // Devolvemos el mapa para poder accederlo fuera de la función
         }
 
         // Function to load Google Maps API
@@ -56,7 +58,15 @@
 
         // Initialize the map and chart once the document is loaded
         document.addEventListener('DOMContentLoaded', function () {
+            var map = initMap();  // Inicializamos el mapa y lo guardamos en una variable
             loadGoogleMapsScript();
+
+            // Accedemos al mapa desde otras funciones
+            actualizarMapa = function(coordenadas) {
+                drawnItems.clearLayers();
+                var polygon = L.polygon(coordenadas).addTo(drawnItems);
+                map.fitBounds(polygon.getBounds());
+            };
         });
     </script>
 
@@ -124,7 +134,6 @@
 
         firebase.initializeApp(firebaseConfig);
         var database = firebase.database();
-        var map;
         var drawnItems;
         var ctx = document.getElementById('chart').getContext('2d');
         var myChart;
@@ -154,12 +163,6 @@
             });
         }
 
-        function actualizarMapa(coordenadas) {
-            drawnItems.clearLayers();
-            var polygon = L.polygon(coordenadas).addTo(drawnItems);
-            map.fitBounds(polygon.getBounds());
-        }
-
         function actualizarDashboard() {
             var ubicacionRef = database.ref('ubicacion');
             ubicacionRef.on('value', function (snapshot) {
@@ -176,7 +179,7 @@
             myChart.update();
         }
 
-        // Create an empty chart initially
+        // Initialize the chart with empty data
         myChart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -200,6 +203,7 @@
 </body>
 
 </html>
+
 
 
 
