@@ -32,34 +32,36 @@
         var myChart;
 
         function initMap() {
-            map = L.map('map').setView([0, 0], 2);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
+            if (!map) {  // Asegura que el mapa no se inicialice más de una vez
+                map = L.map('map').setView([0, 0], 2);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
 
-            drawnItems = new L.FeatureGroup();
-            map.addLayer(drawnItems);
+                drawnItems = new L.FeatureGroup();
+                map.addLayer(drawnItems);
 
-            var drawControl = new L.Control.Draw({
-                draw: {
-                    polygon: true,
-                    polyline: false,
-                    rectangle: false,
-                    circle: false,
-                    marker: false
-                },
-                edit: {
-                    featureGroup: drawnItems
-                }
-            });
-            map.addControl(drawControl);
+                var drawControl = new L.Control.Draw({
+                    draw: {
+                        polygon: true,
+                        polyline: false,
+                        rectangle: false,
+                        circle: false,
+                        marker: false
+                    },
+                    edit: {
+                        featureGroup: drawnItems
+                    }
+                });
+                map.addControl(drawControl);
 
-            map.on('draw:created', function (e) {
-                var layer = e.layer;
-                drawnItems.clearLayers();
-                drawnItems.addLayer(layer);
-                guardarCoordenadas(layer.getLatLngs());
-            });
+                map.on('draw:created', function (e) {
+                    var layer = e.layer;
+                    drawnItems.clearLayers();
+                    drawnItems.addLayer(layer);
+                    guardarCoordenadas(layer.getLatLngs());
+                });
+            }
 
             return map;
         }
@@ -165,7 +167,6 @@
 </body>
 
 </html>
-
 
 
 
