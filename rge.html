@@ -79,13 +79,16 @@
         function initMap() {
             map = L.map('map').setView([0, 0], 2);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+            // Obtener y agregar marcadores desde la base de datos
+            obtenerMarcadoresDesdeBaseDeDatos();
         }
 
         document.getElementById('pais').addEventListener('change', llenarCiudades);
 
         function llenarSelect(elementId, options) {
             var select = document.getElementById(elementId);
-            select.innerHTML = '';
+            select.innerHTML = '<option value="">Seleccione...</option>';
 
             options.forEach(function (option) {
                 var optionElement = document.createElement('option');
@@ -186,20 +189,53 @@
             // Por ahora, usaremos datos de ejemplo
             var datosEjemplo = [10, 20, 30]; // Reemplaza esto con datos reales
 
-            // Actualiza el gráfico con los datos
-            var dashboardDiv = document.getElementById('dashboard');
-            dashboardDiv.innerHTML = '';
+            // Actualiza el dashboard con los datos
+            var dashboard = document.getElementById('dashboard');
+            dashboard.innerHTML = '<h2>Dashboard</h2>' +
+                '<p>Dato 1: ' + datosEjemplo[0] + '</p>' +
+                '<p>Dato 2: ' + datosEjemplo[1] + '</p>' +
+                '<p>Dato 3: ' + datosEjemplo[2] + '</p>';
+        }
 
-            datosEjemplo.forEach(function (dato, index) {
-                var elementoDato = document.createElement('div');
-                elementoDato.innerHTML = '<strong>Dato ' + (index + 1) + ':</strong> ' + dato;
-                dashboardDiv.appendChild(elementoDato);
+        // Función para obtener marcadores desde la base de datos
+        function obtenerMarcadoresDesdeBaseDeDatos() {
+            // Aquí deberías hacer una solicitud a tu base de datos para obtener los marcadores
+            // Por ahora, usaremos datos de ejemplo
+            var marcadoresEjemplo = [
+                {
+                    latitud: -33.4405839521407,
+                    longitud: -70.66138014810028,
+                    mensaje: "greger",
+                    iconoUrl: "https://firebasestorage.googleapis.com/v0/b/erthrth-2fea7.appspot.com/o/querido.png?alt=media&token=f43c285f-f35f-4f2b-9bb8-0f660208c7b2"
+                },
+                // Agrega más marcadores según tu necesidad
+            ];
+
+            // Agrega los marcadores al mapa
+            agregarMarcadores(marcadoresEjemplo);
+        }
+
+        // Función para agregar marcadores al mapa
+        function agregarMarcadores(marcadores) {
+            marcadores.forEach(function (marcador) {
+                var icono = L.icon({
+                    iconUrl: marcador.iconoUrl,
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15],
+                    popupAnchor: [0, -15]
+                });
+
+                L.marker([marcador.latitud, marcador.longitud], { icon: icono })
+                    .addTo(map)
+                    .bindPopup(marcador.mensaje);
             });
         }
     </script>
-    <script async defer onload="initMap()" src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"></script>
+
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=TU_CLAVE_API&callback=initMap"></script>
 </body>
 
 </html>
+
 
 
