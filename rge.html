@@ -27,7 +27,7 @@
     var searchControl = L.Control.geocoder({
       defaultMarkGeocode: false
     }).on('markgeocode', function (e) {
-      map.setView(e.geocode.center, 13);
+      map.setView(e.geocode.center, 6); // Ajusta el zoom según tus necesidades
       subrayarArea(e.geocode);
     }).addTo(map);
 
@@ -42,26 +42,23 @@
         map.removeLayer(zonaLayer);
       }
 
-      // Verificar si la geometría de la ubicación está presente y es del tipo esperado
-      if (geocode.center && geocode.center.lat && geocode.center.lng) {
-        var coordinates = [geocode.center.lat, geocode.center.lng];
-        var radio = 5000;
-        var zonaCircle = L.circle(coordinates, {
-          color: 'red',
-          fillOpacity: 0.5,
-          radius: radio
-        });
+      // Ejemplo de GeoJSON para límites de países (puedes usar datos más detallados)
+      var geojsonFeature = {
+        "type": "Feature",
+        "properties": {
+          "name": "Sample Country"
+        },
+        "geometry": geocode.geometry
+      };
 
-        // Añadir la nueva capa al mapa
-        zonaLayer = L.layerGroup([zonaCircle]).addTo(map);
-      } else {
-        console.error('No se encontró geometría de la ubicación.');
-      }
+      // Crear una nueva capa con el área del país
+      var zonaPolygon = L.geoJSON(geojsonFeature);
+      
+      // Añadir la nueva capa al mapa
+      zonaLayer = L.layerGroup([zonaPolygon]).addTo(map);
     }
   </script>
 </body>
 </html>
-
-
 
 
