@@ -109,9 +109,8 @@
             map.addControl(drawControl);
 
             // Agrega el geocodificador al mapa
-            var geocoder = L.Control.geocoder({
-                geocoder: L.Control.Geocoder.nominatim(),
-            }).addTo(map);
+            var geocoder = L.Control.Geocoder.nominatim();
+            geocoder.addTo(map);
 
             map.on('draw:created', function (e) {
                 var layer = e.layer;
@@ -142,7 +141,7 @@
                     var bounds = results[0].bounds;
 
                     if (bounds && bounds.isValid()) {
-                        map.fitBounds(bounds);
+                        // Dibuja un polígono en lugar de agregar un marcador
                         var polygon = L.polygon([
                             bounds.getSouthWest(),
                             bounds.getNorthWest(),
@@ -150,6 +149,7 @@
                             bounds.getSouthEast()
                         ]).addTo(drawnItems);
 
+                        // Guarda las coordenadas
                         guardarCoordenadas(polygon.getLatLngs());
                     } else {
                         console.error('Límites de respuesta no válidos.');
