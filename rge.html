@@ -116,31 +116,32 @@
 
         llenarPaises();
 
-        function llenarCiudades() {
-            var paisSeleccionado = document.getElementById('pais').value;
+       function llenarCiudades() {
+    var paisSeleccionado = document.getElementById('pais').value;
 
-            // Verifica que haya un país seleccionado
-            if (!paisSeleccionado) {
-                console.error('Seleccione un país antes de obtener la lista de ciudades.');
-                return;
+    // Verifica que haya un país seleccionado
+    if (!paisSeleccionado) {
+        console.error('Seleccione un país antes de obtener la lista de ciudades.');
+        return;
+    }
+
+    var apiKey = '77eb71c352e742679d4866dda3c43bcd'; // Reemplaza con tu clave de API de OpenCage
+    var ciudadesApiUrl = `https://api.opencagedata.com/geocode/v1/json?q=${paisSeleccionado}&key=${apiKey}&limit=5`;
+
+    fetch(ciudadesApiUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (data.results.length > 0) {
+                var ciudades = data.results.map(ciudad => ciudad.formatted);
+                llenarSelect('ciudad', ciudades);
+                llenarBarrios();
+            } else {
+                throw new Error('Error en la solicitud de la lista de ciudades.');
             }
-
-            var apiKey = '77eb71c352e742679d4866dda3c43bcd'; // Reemplaza con tu clave de API de OpenCage
-            var ciudadesApiUrl = `https://api.opencagedata.com/geocode/v1/json?q=${paisSeleccionado}&key=${apiKey}`;
-
-            fetch(ciudadesApiUrl)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.results.length > 0) {
-                        var ciudades = data.results.map(ciudad => ciudad.formatted);
-                        llenarSelect('ciudad', ciudades);
-                        llenarBarrios();
-                    } else {
-                        throw new Error('Error en la solicitud de la lista de ciudades.');
-                    }
-                })
-                .catch(error => console.error('Error al obtener la lista de ciudades:', error));
-        }
+        })
+        .catch(error => console.error('Error al obtener la lista de ciudades:', error));
+}
+}
 
         function llenarBarrios() {
             var paisSeleccionado = document.getElementById('pais').value;
