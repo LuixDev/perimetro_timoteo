@@ -132,6 +132,9 @@
                 if (status === 'OK' && results[0].geometry) {
                     var ubicacion = results[0].geometry.location;
                     actualizarMapa([ubicacion.lat(), ubicacion.lng()]);
+                    drawnItems.clearLayers();
+                    var marker = L.marker([ubicacion.lat(), ubicacion.lng()]).addTo(drawnItems);
+                    map.panTo([ubicacion.lat(), ubicacion.lng()]);
                 } else {
                     console.error('Error al geocodificar la ubicación.');
                 }
@@ -189,4 +192,5 @@
 </body>
 
 </html>
+
 
