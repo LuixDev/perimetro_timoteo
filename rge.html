@@ -137,10 +137,9 @@
 
             geocoder.geocode(ubicacion, function (results) {
                 if (results && results.length > 0) {
-                    // Obtén los límites de la ubicación geocodificada
+                    // Verifica si la respuesta tiene límites y son válidos
                     var bounds = results[0].bounds;
-
-                    if (bounds.isValid()) {
+                    if (bounds && bounds.isValid()) {
                         // Ajusta el mapa a los límites
                         map.fitBounds(bounds);
 
@@ -155,7 +154,7 @@
                         // Guarda las coordenadas
                         guardarCoordenadas(polygon.getLatLngs());
                     } else {
-                        console.error('Límites no válidos.');
+                        console.error('Límites de respuesta no válidos.');
                     }
                 } else {
                     console.error('Error al geocodificar la ubicación.');
@@ -212,6 +211,5 @@
 </body>
 
 </html>
-
 
 
