@@ -28,7 +28,7 @@
       defaultMarkGeocode: false
     }).on('markgeocode', function (e) {
       map.setView(e.geocode.center, 13);
-      subrayarArea(e.geocode);
+      subrayarArea(e.geocode.center);
     }).addTo(map);
 
     function buscarUbicacion() {
@@ -36,43 +36,27 @@
       searchControl.geocode(searchTerm);
     }
 
-    function subrayarArea(geocode) {
+    function subrayarArea(coordinates) {
       // Verificar si zonaLayer es una capa válida antes de eliminarla
       if (zonaLayer && map.hasLayer(zonaLayer)) {
         map.removeLayer(zonaLayer);
       }
 
-      // Log para analizar la estructura de la respuesta
-      console.log(geocode);
+      // Crear una nueva capa con el círculo alrededor de las coordenadas
+      var radio = 5000;
+      var zonaCircle = L.circle(coordinates, {
+        color: 'red',
+        fillOpacity: 0.5,
+        radius: radio
+      });
 
-      // Verificar si la geometría de la ubicación está presente y es del tipo esperado
-      if (geocode.geometry && geocode.geometry.type) {
-        var coordinates;
-
-        if (geocode.geometry.type === 'Point') {
-          coordinates = geocode.geometry.coordinates;
-          var radio = 5000;
-          var zonaCircle = L.circle(coordinates, {
-            color: 'red',
-            fillOpacity: 0.5,
-            radius: radio
-          });
-          zonaLayer = L.layerGroup([zonaCircle]).addTo(map);
-        } else if (geocode.geometry.type === 'Polygon') {
-          coordinates = geocode.geometry.coordinates[0];
-          var zonaPolygon = L.polygon(coordinates, {
-            color: 'red',
-            fillOpacity: 0.5,
-          });
-          zonaLayer = L.layerGroup([zonaPolygon]).addTo(map);
-        }
-      } else {
-        console.error('No se encontró geometría de la ubicación.');
-      }
+      // Añadir la nueva capa al mapa
+      zonaLayer = L.layerGroup([zonaCircle]).addTo(map);
     }
   </script>
 </body>
 </html>
+
 
 
 
