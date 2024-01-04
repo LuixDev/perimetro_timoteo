@@ -42,6 +42,9 @@
         map.removeLayer(zonaLayer);
       }
 
+      // Log para analizar la estructura de la respuesta
+      console.log(geocode);
+
       // Verificar si la geometría de la ubicación está presente y es del tipo esperado
       if (geocode.geometry && geocode.geometry.type) {
         var coordinates;
@@ -70,5 +73,6 @@
   </script>
 </body>
 </html>
+
 
 
