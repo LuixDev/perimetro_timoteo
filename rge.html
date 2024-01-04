@@ -135,9 +135,7 @@
 
         function geocodeLocation(ubicacion) {
             // Obtén el geocodificador desde el mapa
-            var geocoder = L.Control.geocoder({
-                geocoder: L.Control.Geocoder.nominatim(),
-            }).addTo(map);
+            var geocoder = L.Control.Geocoder.nominatim();
 
             geocoder.geocode(ubicacion, function (results) {
                 if (results && results.length > 0) {
@@ -212,7 +210,6 @@
 </body>
 
 </html>
-
 
 
 
