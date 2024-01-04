@@ -103,44 +103,35 @@
             });
         }
 
-       function llenarPaises() {
-        fetch('https://restcountries.com/v3.1/all')
-            .then(response => response.json())
-            .then(data => {
-                var paises = data.map(pais => pais.name.common);
-                llenarSelect('pais', paises);
-            })
-            .catch(error => console.error('Error al obtener la lista de países:', error));
-    }
+        function llenarPaises() {
+            fetch('https://restcountries.com/v3.1/all')
+                .then(response => response.json())
+                .then(data => {
+                    var paises = data.map(pais => pais.name.common);
+                    llenarSelect('pais', paises);
+                    llenarCiudades();
+                })
+                .catch(error => console.error('Error al obtener la lista de países:', error));
+        }
 
-    document.getElementById('pais').addEventListener('change', llenarCiudades);
-    llenarPaises();
+        llenarPaises();
 
-      function llenarCiudades() {
-    var paisSeleccionado = document.getElementById('pais').value;
+        function llenarCiudades() {
+            var paisSeleccionado = document.getElementById('pais').value;
 
-    // Verifica que haya un país seleccionado
-    if (!paisSeleccionado) {
-        console.error('Seleccione un país antes de obtener la lista de ciudades.');
-        return;
-    }
-
-    var ciudadesApiUrl = 'https://nominatim.openstreetmap.org/search?country=' + encodeURIComponent(paisSeleccionado) + '&format=json';
-
-    fetch(ciudadesApiUrl)
-        .then(response => response.json())
-        .then(data => {
-            if (Array.isArray(data) && data.length > 0) {
-                var ciudades = data.map(ciudad => ciudad.display_name);
-                llenarSelect('ciudad', ciudades);
-                llenarBarrios();
-            } else {
-                throw new Error('Error en la solicitud de la lista de ciudades.');
+            // Verifica que haya un país seleccionado
+            if (!paisSeleccionado) {
+                console.error('Seleccione un país antes de obtener la lista de ciudades.');
+                return;
             }
-        })
-        .catch(error => console.error('Error al obtener la lista de ciudades:', error));
-}
 
+            // Simplemente para mostrar cómo se podría obtener una lista de ciudades.
+            // Puedes buscar una API de geocodificación más específica para obtener resultados precisos.
+            var ciudades = ["Ciudad 1", "Ciudad 2", "Ciudad 3"];  // Ejemplo: puedes reemplazar esto con la respuesta de una API de geocodificación.
+
+            llenarSelect('ciudad', ciudades);
+            llenarBarrios();
+        }
 
         function llenarBarrios() {
             var paisSeleccionado = document.getElementById('pais').value;
@@ -151,20 +142,11 @@
                 return;
             }
 
-            var barriosApiUrl = 'https://nominatim.openstreetmap.org/search?country=' + encodeURIComponent(paisSeleccionado) +
-                '&city=' + encodeURIComponent(ciudadSeleccionada) + '&format=json';
+            // Simplemente para mostrar cómo se podría obtener una lista de barrios.
+            // Puedes buscar una API de geocodificación más específica para obtener resultados precisos.
+            var barrios = ["Barrio 1", "Barrio 2", "Barrio 3"];  // Ejemplo: puedes reemplazar esto con la respuesta de una API de geocodificación.
 
-            fetch(barriosApiUrl)
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.error) {
-                        var barrios = data.map(barrio => barrio.display_name);
-                        llenarSelect('barrio', barrios);
-                    } else {
-                        throw new Error('Error en la solicitud de la lista de barrios.');
-                    }
-                })
-                .catch(error => console.error('Error al obtener la lista de barrios:', error));
+            llenarSelect('barrio', barrios);
         }
 
         document.getElementById('ciudad').addEventListener('change', buscarLugar);
@@ -228,5 +210,4 @@
 </body>
 
 </html>
-
 
