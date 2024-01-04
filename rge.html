@@ -22,6 +22,8 @@
     var map = L.map('map').setView([0, 0], 2);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
+    var zonaLayer;  // Declarar zonaLayer aquí
+
     var searchControl = L.Control.geocoder({
       defaultMarkGeocode: false
     }).on('markgeocode', function (e) {
@@ -39,13 +41,11 @@
         map.removeLayer(zonaLayer);
       }
 
-      // Adaptar el subrayado según el tipo de geometría devuelta
       var coordinates;
 
       if (geocode.geometry.type === 'Point') {
-        // Si es un punto (ciudad o barrio), usa un círculo
         coordinates = geocode.geometry.coordinates;
-        var radio = 5000;  // Ajusta el tamaño del círculo según tus necesidades
+        var radio = 5000;
         var zonaCircle = L.circle(coordinates, {
           color: 'red',
           fillOpacity: 0.5,
@@ -53,7 +53,6 @@
         });
         zonaLayer = L.layerGroup([zonaCircle]).addTo(map);
       } else if (geocode.geometry.type === 'Polygon') {
-        // Si es un polígono (país), usa el polígono devuelto
         coordinates = geocode.geometry.coordinates[0];
         var zonaPolygon = L.polygon(coordinates, {
           color: 'red',
@@ -61,12 +60,10 @@
         });
         zonaLayer = L.layerGroup([zonaPolygon]).addTo(map);
       }
-      // Puedes agregar más casos según el tipo de geometría devuelta por la búsqueda
     }
   </script>
 </body>
 </html>
-
 
 
 
