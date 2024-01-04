@@ -80,36 +80,13 @@
     </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js"></script>
     <script>
-        // Configura tu proyecto de Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyDa-sfn2Of0hF7UAjWr-ZXcUXYAy52sZOA",
-            authDomain: "erthrth-2fea7.firebaseapp.com",
-            databaseURL: "https://erthrth-2fea7-default-rtdb.firebaseio.com",
-            projectId: "erthrth-2fea7",
-            storageBucket: "erthrth-2fea7.appspot.com",
-            messagingSenderId: "422701116092",
-            appId: "1:422701116092:web:a4eddd98bad83835397eb9",
-            measurementId: "G-CXS7KTMSC6"
-        };
-
-        // Inicializa Firebase
-        firebase.initializeApp(firebaseConfig);
-
-        // Referencia a Firestore
-        const db = firebase.firestore();
-
         var map;
         var marker;
 
         function initMap() {
             map = L.map('map').setView([0, 0], 2);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-            // Obtener y agregar marcadores desde la base de datos
-            obtenerMarcadoresDesdeBaseDeDatos();
         }
 
         document.getElementById('pais').addEventListener('change', llenarCiudades);
@@ -141,19 +118,11 @@
 
         function llenarCiudades() {
             var paisSeleccionado = document.getElementById('pais').value;
-
-            // Verifica si se ha seleccionado un país
-            if (!paisSeleccionado) {
-                console.error('No se ha seleccionado un país');
-                return;
-            }
-
             var ciudadesApiUrl = 'https://nominatim.openstreetmap.org/search?country=' + encodeURIComponent(paisSeleccionado) + '&format=json';
 
             fetch(ciudadesApiUrl)
                 .then(response => response.json())
                 .then(data => {
-                    // Aquí deberías verificar que data es un array antes de intentar mapearlo
                     var ciudades = data.map(ciudad => ciudad.display_name);
                     llenarSelect('ciudad', ciudades);
                     llenarBarrios();
@@ -189,8 +158,8 @@
 
             obtenerCoordenadas(direccion)
                 .then(coordenadas => {
-                    // Actualiza el mapa
                     actualizarMapa(coordenadas);
+                    // Actualiza el dashboard
                     actualizarDashboard();
                 })
                 .catch(error => console.error('Error al obtener coordenadas:', error));
@@ -216,72 +185,21 @@
             }
 
             marker = L.marker(coordenadas).addTo(map);
-
             map.setView(coordenadas, 12);
         }
 
         function actualizarDashboard() {
             // Aquí deberías llamar a tu backend o API para obtener datos reales para el dashboard
             // Por ahora, usaremos datos de ejemplo
-            var datosEjemplo = [10, 20, 30]; // Reemplaza esto con datos reales
+            var datosEjemplo = [10, 20, 30];
 
-            // Actualiza el dashboard con los datos
             var dashboard = document.getElementById('dashboard');
             dashboard.innerHTML = '<h2>Dashboard</h2>' +
-                '<p>Cantidad de Marcadores: ' + datosEjemplo.length + '</p>';
-        }
-
-        // Función para obtener marcadores desde la base de datos
-        function obtenerMarcadoresDesdeBaseDeDatos() {
-            var marcadores = [];
-
-            // Consulta los marcadores desde Firestore
-            db.collection('marker').get()
-                .then(snapshot => {
-                    snapshot.forEach(doc => {
-                        var marcador = doc.data();
-                        marcadores.push(marcador);
-                    });
-
-                    // Agrega los marcadores al mapa
-                    agregarMarcadores(marcadores);
-                })
-                .catch(error => console.error('Error al obtener marcadores desde Firestore:', error));
-        }
-
-        // Función para agregar marcadores al mapa
-        function agregarMarcadores(marcadores) {
-            // Limpia el mapa antes de agregar nuevos marcadores
-            map.eachLayer(function (layer) {
-                if (layer instanceof L.Marker) {
-                    map.removeLayer(layer);
-                }
-            });
-
-            // Agrega los marcadores al mapa
-            marcadores.forEach(function (marcador, index) {
-                // Usa un número en lugar de una imagen
-                var icono = L.divIcon({
-                    className: 'numero-marcador',
-                    html: '<div>' + (index + 1) + '</div>',
-                    iconSize: [30, 30],
-                    iconAnchor: [15, 15]
-                });
-
-                L.marker([marcador.latitud, marcador.longitud], { icon: icono })
-                    .addTo(map)
-                    .bindPopup(marcador.mensaje);
-            });
-
-            // Actualiza el dashboard con la cantidad de marcadores
-            var cantidadMarcadores = marcadores.length;
-            var dashboard = document.getElementById('dashboard');
-            dashboard.innerHTML = '<h2>Dashboard</h2>' +
-                '<p>Cantidad de Marcadores: ' + cantidadMarcadores + '</p>';
+                '<p>Dato 1: ' + datosEjemplo[0] + '</p>' +
+                '<p>Dato 2: ' + datosEjemplo[1] + '</p>' +
+                '<p>Dato 3: ' + datosEjemplo[2] + '</p>';
         }
     </script>
-
-    <!-- No es necesario incluir la API de Google Maps -->
 </body>
 
 </html>
