@@ -74,7 +74,7 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         var map;
-        var polygon;
+        var marker;
 
         function initMap() {
             map = L.map('map').setView([0, 0], 2);
@@ -172,11 +172,11 @@
         }
 
         function actualizarMapa(coordenadas) {
-            if (polygon) {
-                map.removeLayer(polygon);
+            if (marker) {
+                map.removeLayer(marker);
             }
 
-            polygon = L.marker(coordenadas).addTo(map);
+            marker = L.marker(coordenadas).addTo(map);
 
             map.setView(coordenadas, 12);
         }
@@ -197,6 +197,7 @@
             });
         }
     </script>
+    <script async defer onload="initMap()" src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"></script>
 </body>
 
 </html>
