@@ -22,7 +22,7 @@
             <button onclick="buscarLugar()">Buscar Lugar</button>
         </div>
 
-        <div id="map"></div>
+        <div id="map" style="height: 300px;"></div>
 
         <div id="dashboard">
             <h2>Dashboard</h2>
@@ -50,6 +50,7 @@
         var myChart;
 
         function initMap() {
+            // Verificamos si el mapa ya está inicializado
             if (!map) {
                 map = L.map('map').setView([0, 0], 2);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -98,11 +99,11 @@
         }
 
         function geocodeLocation(ubicacion) {
-            var geocoder = new google.maps.Geocoder();
-            geocoder.geocode({ address: ubicacion }, function (results, status) {
-                if (status === 'OK' && results[0].geometry) {
-                    var ubicacion = results[0].geometry.location;
-                    actualizarMapa([ubicacion.lat(), ubicacion.lng()]);
+            var geocoder = new L.Control.Geocoder.Nominatim();
+            geocoder.geocode(ubicacion, function (results) {
+                if (results && results.length > 0) {
+                    var ubicacion = results[0].center;
+                    actualizarMapa([ubicacion.lat, ubicacion.lng]);
                 } else {
                     console.error('Error al geocodificar la ubicación.');
                 }
@@ -161,19 +162,11 @@
 
                 // Initialize the map after chart is ready
                 var map = initMap();
-                loadGoogleMapsScript();
                 actualizarDashboard();
             } else {
                 console.error('Element with id "chart" not found.');
             }
         });
-
-        function loadGoogleMapsScript() {
-            var script = document.createElement('script');
-            script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyCGkOZ6ZpmOXnNsS-JJlt81bixb6oDOKZo&libraries=places&callback=initMap';
-            script.async = true;
-            document.head.appendChild(script);
-        }
     </script>
 </body>
 
