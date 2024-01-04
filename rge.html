@@ -13,19 +13,17 @@
   </style>
 </head>
 <body>
-  <div>
-    <label for="searchInput">Buscar:</label>
-    <input type="text" id="searchInput" placeholder="Ingresa un lugar">
-    <button onclick="buscarUbicacion()">Buscar</button>
-  </div>
+ 
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
   <script>
+    // Inicializar el mapa
     var map = L.map('map').setView([0, 0], 2);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
+    // Agregar un control de búsqueda
     var searchControl = L.Control.geocoder({
       defaultMarkGeocode: false
     }).on('markgeocode', function (e) {
@@ -33,26 +31,30 @@
       subrayarArea(e.geocode.center);
     }).addTo(map);
 
+    // Función para buscar ubicación
     function buscarUbicacion() {
       var searchTerm = document.getElementById('searchInput').value;
       searchControl.geocode(searchTerm);
     }
 
+    // Función para subrayar una zona en el mapa
     function subrayarArea(coordinates) {
+      // Limpiar capa anterior si existe
       if (map.hasLayer(zonaLayer)) {
         map.removeLayer(zonaLayer);
       }
 
       // Ajusta el radio para hacer el subrayado más pequeño
-      var radio = 0.05;
+      var radio = 500;  // Cambia este valor según tus necesidades
 
       // Crea una nueva capa con el círculo
       var zonaCircle = L.circle(coordinates, {
         color: 'red',
         fillOpacity: 0.5,
-        radius: radio * 1000  // Convierte el radio a metros
+        radius: radio
       });
 
+      // Añadir la nueva capa al mapa
       zonaLayer = L.layerGroup([zonaCircle]).addTo(map);
     }
   </script>
