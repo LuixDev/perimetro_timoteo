@@ -103,18 +103,18 @@
             });
         }
 
-        function llenarPaises() {
-            fetch('https://restcountries.com/v3.1/all')
-                .then(response => response.json())
-                .then(data => {
-                    var paises = data.map(pais => pais.name.common);
-                    llenarSelect('pais', paises);
-                    llenarCiudades();
-                })
-                .catch(error => console.error('Error al obtener la lista de países:', error));
-        }
+       function llenarPaises() {
+        fetch('https://restcountries.com/v3.1/all')
+            .then(response => response.json())
+            .then(data => {
+                var paises = data.map(pais => pais.name.common);
+                llenarSelect('pais', paises);
+            })
+            .catch(error => console.error('Error al obtener la lista de países:', error));
+    }
 
-        llenarPaises();
+    document.getElementById('pais').addEventListener('change', llenarCiudades);
+    llenarPaises();
 
       function llenarCiudades() {
     var paisSeleccionado = document.getElementById('pais').value;
