@@ -50,6 +50,14 @@
         canvas {
             max-width: 100%;
         }
+
+        .numero-marcador {
+            background-color: #3498db;
+            color: #fff;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+        }
     </style>
 </head>
 
@@ -72,7 +80,28 @@
     </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js"></script>
     <script>
+        // Configura tu proyecto de Firebase
+          const firebaseConfig = {
+            apiKey: "AIzaSyDa-sfn2Of0hF7UAjWr-ZXcUXYAy52sZOA",
+            authDomain: "erthrth-2fea7.firebaseapp.com",
+            databaseURL: "https://erthrth-2fea7-default-rtdb.firebaseio.com",
+            projectId: "erthrth-2fea7",
+            storageBucket: "erthrth-2fea7.appspot.com",
+            messagingSenderId: "422701116092",
+            appId: "1:422701116092:web:a4eddd98bad83835397eb9",
+            measurementId: "G-CXS7KTMSC6"
+        };
+
+
+        // Inicializa Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Referencia a Firestore
+        const db = firebase.firestore();
+
         var map;
         var marker;
 
@@ -84,158 +113,65 @@
             obtenerMarcadoresDesdeBaseDeDatos();
         }
 
-        document.getElementById('pais').addEventListener('change', llenarCiudades);
-
-        function llenarSelect(elementId, options) {
-            var select = document.getElementById(elementId);
-            select.innerHTML = '<option value="">Seleccione...</option>';
-
-            options.forEach(function (option) {
-                var optionElement = document.createElement('option');
-                optionElement.value = option;
-                optionElement.textContent = option;
-                select.appendChild(optionElement);
-            });
-        }
-
-        function llenarPaises() {
-            fetch('https://restcountries.com/v3.1/all')
-                .then(response => response.json())
-                .then(data => {
-                    var paises = data.map(pais => pais.name.common);
-                    llenarSelect('pais', paises);
-                    llenarCiudades();
-                })
-                .catch(error => console.error('Error al obtener la lista de países:', error));
-        }
-
-        llenarPaises();
-
-        function llenarCiudades() {
-            var paisSeleccionado = document.getElementById('pais').value;
-            var ciudadesApiUrl = 'https://nominatim.openstreetmap.org/search?country=' + encodeURIComponent(paisSeleccionado) + '&format=json';
-
-            fetch(ciudadesApiUrl)
-                .then(response => response.json())
-                .then(data => {
-                    var ciudades = data.map(ciudad => ciudad.display_name);
-                    llenarSelect('ciudad', ciudades);
-                    llenarBarrios();
-                })
-                .catch(error => console.error('Error al obtener la lista de ciudades:', error));
-        }
-
-        function llenarBarrios() {
-            var paisSeleccionado = document.getElementById('pais').value;
-            var ciudadSeleccionada = document.getElementById('ciudad').value;
-            var barriosApiUrl = 'https://nominatim.openstreetmap.org/search?country=' + encodeURIComponent(paisSeleccionado) +
-                '&city=' + encodeURIComponent(ciudadSeleccionada) + '&format=json';
-
-            fetch(barriosApiUrl)
-                .then(response => response.json())
-                .then(data => {
-                    var barrios = data.map(barrio => barrio.display_name);
-                    llenarSelect('barrio', barrios);
-                })
-                .catch(error => console.error('Error al obtener la lista de barrios:', error));
-        }
-
-        document.getElementById('ciudad').addEventListener('change', buscarLugar);
-        document.getElementById('barrio').addEventListener('change', buscarLugar);
-        document.getElementById('pais').addEventListener('change', buscarLugar);
-
-        function buscarLugar() {
-            var ciudadSeleccionada = document.getElementById('ciudad').value;
-            var barrioSeleccionado = document.getElementById('barrio').value;
-            var paisSeleccionado = document.getElementById('pais').value;
-
-            var direccion = ciudadSeleccionada + ', ' + barrioSeleccionado + ', ' + paisSeleccionado;
-
-            obtenerCoordenadas(direccion)
-                .then(coordenadas => {
-                    // Actualiza el mapa
-                    actualizarMapa(coordenadas);
-                    actualizarDashboard();
-                })
-                .catch(error => console.error('Error al obtener coordenadas:', error));
-        }
-
-        function obtenerCoordenadas(direccion) {
-            var geocodingApiUrl = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(direccion);
-
-            return fetch(geocodingApiUrl)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.length > 0) {
-                        return [data[0].lat, data[0].lon];
-                    } else {
-                        throw new Error('No se encontraron resultados para la dirección: ' + direccion);
-                    }
-                });
-        }
-
-        function actualizarMapa(coordenadas) {
-            if (marker) {
-                map.removeLayer(marker);
-            }
-
-            marker = L.marker(coordenadas).addTo(map);
-
-            map.setView(coordenadas, 12);
-        }
-
-        function actualizarDashboard() {
-            // Aquí deberías llamar a tu backend o API para obtener datos reales para el dashboard
-            // Por ahora, usaremos datos de ejemplo
-            var datosEjemplo = [10, 20, 30]; // Reemplaza esto con datos reales
-
-            // Actualiza el dashboard con los datos
-            var dashboard = document.getElementById('dashboard');
-            dashboard.innerHTML = '<h2>Dashboard</h2>' +
-                '<p>Dato 1: ' + datosEjemplo[0] + '</p>' +
-                '<p>Dato 2: ' + datosEjemplo[1] + '</p>' +
-                '<p>Dato 3: ' + datosEjemplo[2] + '</p>';
-        }
+        // Resto de tu código...
 
         // Función para obtener marcadores desde la base de datos
         function obtenerMarcadoresDesdeBaseDeDatos() {
-            // Aquí deberías hacer una solicitud a tu base de datos para obtener los marcadores
-            // Por ahora, usaremos datos de ejemplo
-            var marcadoresEjemplo = [
-                {
-                    latitud: -33.4405839521407,
-                    longitud: -70.66138014810028,
-                    mensaje: "greger",
-                    iconoUrl: "https://firebasestorage.googleapis.com/v0/b/erthrth-2fea7.appspot.com/o/querido.png?alt=media&token=f43c285f-f35f-4f2b-9bb8-0f660208c7b2"
-                },
-                // Agrega más marcadores según tu necesidad
-            ];
+            var marcadores = [];
 
-            // Agrega los marcadores al mapa
-            agregarMarcadores(marcadoresEjemplo);
+            // Consulta los marcadores desde Firestore
+            db.collection('marker').get()
+                .then(snapshot => {
+                    snapshot.forEach(doc => {
+                        var marcador = doc.data();
+                        marcadores.push(marcador);
+                    });
+
+                    // Agrega los marcadores al mapa
+                    agregarMarcadores(marcadores);
+                })
+                .catch(error => console.error('Error al obtener marcadores desde Firestore:', error));
         }
+
+        // Resto de tu código...
 
         // Función para agregar marcadores al mapa
         function agregarMarcadores(marcadores) {
-            marcadores.forEach(function (marcador) {
-                var icono = L.icon({
-                    iconUrl: marcador.iconoUrl,
+            // Limpia el mapa antes de agregar nuevos marcadores
+            map.eachLayer(function (layer) {
+                if (layer instanceof L.Marker) {
+                    map.removeLayer(layer);
+                }
+            });
+
+            // Agrega los marcadores al mapa
+            marcadores.forEach(function (marcador, index) {
+                // Usa un número en lugar de una imagen
+                var icono = L.divIcon({
+                    className: 'numero-marcador',
+                    html: '<div>' + (index + 1) + '</div>',
                     iconSize: [30, 30],
-                    iconAnchor: [15, 15],
-                    popupAnchor: [0, -15]
+                    iconAnchor: [15, 15]
                 });
 
                 L.marker([marcador.latitud, marcador.longitud], { icon: icono })
                     .addTo(map)
                     .bindPopup(marcador.mensaje);
             });
+
+            // Actualiza el dashboard con la cantidad de marcadores
+            var cantidadMarcadores = marcadores.length;
+            var dashboard = document.getElementById('dashboard');
+            dashboard.innerHTML = '<h2>Dashboard</h2>' +
+                '<p>Cantidad de Marcadores: ' + cantidadMarcadores + '</p>';
         }
     </script>
 
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=TU_CLAVE_API&callback=initMap"></script>
+    <!-- No es necesario incluir la API de Google Maps -->
 </body>
 
 </html>
+
 
 
 
