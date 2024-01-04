@@ -2,16 +2,16 @@
 <html lang="en">
 
 <head>
-      <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa y Dashboard</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCGkOZ6ZpmOXnNsS-JJlt81bixb6oDOKZo&libraries=places"></script>
 
     <style>
         body {
@@ -153,10 +153,10 @@
         }
 
         function updateChart(data) {
-            // Implement logic to update the chart based on your data
-            // For example, assuming 'data' has an array of values
-            myChart.data.labels = data.labels || [];
-            myChart.data.datasets[0].data = data.values || [];
+            // Assuming 'data' contains the required information for the chart
+            // Update the chart labels and data based on your data structure
+            myChart.data.labels = ['Label1', 'Label2']; // Update with your labels
+            myChart.data.datasets[0].data = [10, 20]; // Update with your data values
             myChart.update();
         }
 
@@ -185,7 +185,7 @@
         actualizarDashboard();
     </script>
 
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCGkOZ6ZpmOXnNsS-JJlt81bixb6oDOKZo&libraries=places"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCGkOZ6ZpmOXnNsS-JJlt81bixb6oDOKZo&libraries=places&callback=initMap"></script>
 </body>
 
 </html>
