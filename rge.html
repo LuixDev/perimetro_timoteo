@@ -42,23 +42,23 @@
         map.removeLayer(zonaLayer);
       }
 
-      // Ejemplo de GeoJSON para límites de países (puedes usar datos más detallados)
-      var geojsonFeature = {
-        "type": "Feature",
-        "properties": {
-          "name": "Sample Country"
-        },
-        "geometry": geocode.geometry
-      };
-
-      // Crear una nueva capa con el área del país
-      var zonaPolygon = L.geoJSON(geojsonFeature);
+      // Ejemplo de solicitud a la API Overpass para límites geográficos
+      var overpassApiUrl = 'https://overpass-api.de/api/interpreter?data=' +
+        '[out:json];area["name"="' + geocode.name + '"]->.a;' +
+        '(relation(area.a);way(area.a););out geom;';
       
-      // Añadir la nueva capa al mapa
-      zonaLayer = L.layerGroup([zonaPolygon]).addTo(map);
+      // Crear una nueva capa con el área geográfica
+      fetch(overpassApiUrl)
+        .then(response => response.json())
+        .then(data => {
+          var zonaPolygon = L.geoJSON(data);
+          zonaLayer = L.layerGroup([zonaPolygon]).addTo(map);
+        })
+        .catch(error => console.error('Error al cargar datos de límites geográficos:', error));
     }
   </script>
 </body>
 </html>
+
 
 
