@@ -41,10 +41,10 @@
     function subrayarArea(coordinates) {
       // Ajusta las coordenadas para hacer el subrayado más pequeño
       var polygon = L.polygon([
-        [coordinates.lat - 0.01, coordinates.lng - 0.01],
-        [coordinates.lat + 0.01, coordinates.lng - 0.01],
-        [coordinates.lat + 0.01, coordinates.lng + 0.01],
-        [coordinates.lat - 0.01, coordinates.lng + 0.01]
+        [coordinates.lat - 0.01, coordinates.lng - 0.51],
+        [coordinates.lat + 0.01, coordinates.lng - 0.51],
+        [coordinates.lat + 0.01, coordinates.lng + 0.51],
+        [coordinates.lat - 0.01, coordinates.lng + 0.51]
       ]).addTo(map);
     }
   </script>
