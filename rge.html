@@ -17,11 +17,11 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
   <script>
-    // Inicializar el mapa
     var map = L.map('map').setView([0, 0], 2);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    // Agregar un control de búsqueda
+    var zonaLayer;
+
     var searchControl = L.Control.geocoder({
       defaultMarkGeocode: false
     }).on('markgeocode', function (e) {
@@ -29,23 +29,25 @@
       subrayarArea(e.geocode.center);
     }).addTo(map);
 
-    // Función para subrayar una zona en el mapa
     function subrayarArea(coordinates) {
-      // Limpiar capa anterior si existe
       if (map.hasLayer(zonaLayer)) {
         map.removeLayer(zonaLayer);
       }
 
-      // Crear una nueva capa con el polígono de la zona
-      var zonaPolygon = L.polygon([
-        [coordinates.lat - 0.1, coordinates.lng - 0.1],
-        [coordinates.lat + 0.1, coordinates.lng - 0.1],
-        [coordinates.lat + 0.1, coordinates.lng + 0.1],
-        [coordinates.lat - 0.1, coordinates.lng + 0.1]
-      ]);
+      // Realizar una solicitud más específica para obtener información detallada
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${coordinates.lat}&lon=${coordinates.lng}`)
+        .then(response => response.json())
+        .then(data => {
+          // Usar datos detallados para subrayar solo la ciudad principal
+          var city = data.address.city || data.address.town || data.address.village;
 
-      // Añadir la nueva capa al mapa
-      zonaLayer = L.layerGroup([zonaPolygon]).addTo(map);
+          // Crear una nueva capa con el polígono de la ciudad
+          var zonaPolygon = L.polygon(data.boundingbox.map(coord => parseFloat(coord)), { color: 'red' });
+
+          // Añadir la nueva capa al mapa
+          zonaLayer = L.layerGroup([zonaPolygon]).addTo(map);
+        })
+        .catch(error => console.error('Error al obtener datos detallados:', error));
     }
   </script>
 </body>
