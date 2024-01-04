@@ -25,33 +25,24 @@
     var searchControl = L.Control.geocoder({
       defaultMarkGeocode: false
     }).on('markgeocode', function (e) {
-      map.setView(e.geocode.center, 13);
-      subrayarArea(e.geocode.center);
-    }).addTo(map);
-
-    function subrayarArea(coordinates) {
+      // Limpiar capa anterior si existe
       if (map.hasLayer(zonaLayer)) {
         map.removeLayer(zonaLayer);
       }
 
-      // Realizar una solicitud más específica para obtener información detallada
-      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${coordinates.lat}&lon=${coordinates.lng}`)
-        .then(response => response.json())
-        .then(data => {
-          // Usar datos detallados para subrayar solo la ciudad principal
-          var city = data.address.city || data.address.town || data.address.village;
+      // Crear una nueva capa con el polígono de la zona
+      var zonaPolygon = L.polygon([
+        [e.geocode.center.lat - 0.1, e.geocode.center.lng - 0.1],
+        [e.geocode.center.lat + 0.1, e.geocode.center.lng - 0.1],
+        [e.geocode.center.lat + 0.1, e.geocode.center.lng + 0.1],
+        [e.geocode.center.lat - 0.1, e.geocode.center.lng + 0.1]
+      ]);
 
-          // Crear una nueva capa con el polígono de la ciudad
-          var zonaPolygon = L.polygon(data.boundingbox.map(coord => parseFloat(coord)), { color: 'red' });
-
-          // Añadir la nueva capa al mapa
-          zonaLayer = L.layerGroup([zonaPolygon]).addTo(map);
-        })
-        .catch(error => console.error('Error al obtener datos detallados:', error));
-    }
+      // Añadir la nueva capa al mapa
+      zonaLayer = L.layerGroup([zonaPolygon]).addTo(map);
+    }).addTo(map);
   </script>
 </body>
 </html>
-
 
 
