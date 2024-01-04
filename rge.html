@@ -28,7 +28,7 @@
       defaultMarkGeocode: false
     }).on('markgeocode', function (e) {
       map.setView(e.geocode.center, 13);
-      subrayarArea(e.geocode.center);
+      subrayarArea(e.geocode);
     }).addTo(map);
 
     function buscarUbicacion() {
@@ -36,22 +36,27 @@
       searchControl.geocode(searchTerm);
     }
 
-    function subrayarArea(coordinates) {
+    function subrayarArea(geocode) {
       // Verificar si zonaLayer es una capa válida antes de eliminarla
       if (zonaLayer && map.hasLayer(zonaLayer)) {
         map.removeLayer(zonaLayer);
       }
 
-      // Crear una nueva capa con el círculo alrededor de las coordenadas
-      var radio = 5000;
-      var zonaCircle = L.circle(coordinates, {
-        color: 'red',
-        fillOpacity: 0.5,
-        radius: radio
-      });
+      // Verificar si la geometría de la ubicación está presente y es del tipo esperado
+      if (geocode.center && geocode.center.lat && geocode.center.lng) {
+        var coordinates = [geocode.center.lat, geocode.center.lng];
+        var radio = 5000;
+        var zonaCircle = L.circle(coordinates, {
+          color: 'red',
+          fillOpacity: 0.5,
+          radius: radio
+        });
 
-      // Añadir la nueva capa al mapa
-      zonaLayer = L.layerGroup([zonaCircle]).addTo(map);
+        // Añadir la nueva capa al mapa
+        zonaLayer = L.layerGroup([zonaCircle]).addTo(map);
+      } else {
+        console.error('No se encontró geometría de la ubicación.');
+      }
     }
   </script>
 </body>
