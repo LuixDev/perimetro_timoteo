@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mapa Interactivo</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
   <style>
     #map {
       height: 500px;
@@ -12,6 +13,11 @@
   </style>
 </head>
 <body>
+  <div>
+    <label for="searchInput">Buscar:</label>
+    <input type="text" id="searchInput" placeholder="Ingresa un lugar">
+    <button onclick="buscarUbicacion()">Buscar</button>
+  </div>
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -20,29 +26,38 @@
     var map = L.map('map').setView([0, 0], 2);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    var zonaLayer;
-
     var searchControl = L.Control.geocoder({
       defaultMarkGeocode: false
     }).on('markgeocode', function (e) {
-      // Limpiar capa anterior si existe
+      map.setView(e.geocode.center, 13);
+      subrayarArea(e.geocode.center);
+    }).addTo(map);
+
+    function buscarUbicacion() {
+      var searchTerm = document.getElementById('searchInput').value;
+      searchControl.geocode(searchTerm);
+    }
+
+    function subrayarArea(coordinates) {
       if (map.hasLayer(zonaLayer)) {
         map.removeLayer(zonaLayer);
       }
 
-      // Crear una nueva capa con el polígono de la zona
-      var zonaPolygon = L.polygon([
-        [e.geocode.center.lat - 0.1, e.geocode.center.lng - 0.1],
-        [e.geocode.center.lat + 0.1, e.geocode.center.lng - 0.1],
-        [e.geocode.center.lat + 0.1, e.geocode.center.lng + 0.1],
-        [e.geocode.center.lat - 0.1, e.geocode.center.lng + 0.1]
-      ]);
+      // Ajusta el radio para hacer el subrayado más pequeño
+      var radio = 0.05;
 
-      // Añadir la nueva capa al mapa
-      zonaLayer = L.layerGroup([zonaPolygon]).addTo(map);
-    }).addTo(map);
+      // Crea una nueva capa con el círculo
+      var zonaCircle = L.circle(coordinates, {
+        color: 'red',
+        fillOpacity: 0.5,
+        radius: radio * 1000  // Convierte el radio a metros
+      });
+
+      zonaLayer = L.layerGroup([zonaCircle]).addTo(map);
+    }
   </script>
 </body>
 </html>
+
 
 
