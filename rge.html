@@ -114,10 +114,13 @@
             if (!drawnItems) {
                 drawnItems = new L.FeatureGroup();
                 map.addLayer(drawnItems);
+            } else {
+                // Eliminar capas existentes antes de agregar nuevas
+                drawnItems.clearLayers();
             }
-            drawnItems.clearLayers();
-            var polygon = L.polygon(coordenadas).addTo(drawnItems);
-            map.fitBounds(polygon.getBounds());
+
+            var polyline = L.polyline(coordenadas).addTo(drawnItems);
+            map.fitBounds(polyline.getBounds());
         }
 
         function actualizarDashboard() {
@@ -171,6 +174,7 @@
 </body>
 
 </html>
+
 
 
 
