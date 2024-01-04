@@ -152,9 +152,9 @@
             drawnItems.clearLayers();
 
             // Check if the coordinates are not null
-            if (coordenadas) {
-                var polygon = L.polygon(coordenadas).addTo(drawnItems);
-                map.fitBounds(polygon.getBounds());
+            if (coordenadas && coordenadas.length > 0) {
+                var polyline = L.polyline(coordenadas).addTo(drawnItems);
+                map.fitBounds(polyline.getBounds());
             }
         }
 
@@ -204,5 +204,6 @@
 </body>
 
 </html>
+
 
 
