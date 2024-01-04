@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mapa Interactivo</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
   <style>
     #map {
       height: 500px;
@@ -13,7 +12,6 @@
   </style>
 </head>
 <body>
- 
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -31,26 +29,27 @@
       subrayarArea(e.geocode.center);
     }).addTo(map);
 
-    // Función para buscar ubicación
-    function buscarUbicacion() {
-      var searchTerm = document.getElementById('searchInput').value;
-      searchControl.geocode(searchTerm);
-    }
-
     // Función para subrayar una zona en el mapa
     function subrayarArea(coordinates) {
-      // Aquí puedes agregar lógica para dibujar polígonos o polilíneas en la zona específica
-      // Por ejemplo, puedes usar L.polygon o L.polyline de Leaflet
-      // Nota: Este es un ejemplo muy básico y debe adaptarse a tus necesidades
-      var polygon = L.polygon([
+      // Limpiar capa anterior si existe
+      if (map.hasLayer(zonaLayer)) {
+        map.removeLayer(zonaLayer);
+      }
+
+      // Crear una nueva capa con el polígono de la zona
+      var zonaPolygon = L.polygon([
         [coordinates.lat - 0.1, coordinates.lng - 0.1],
         [coordinates.lat + 0.1, coordinates.lng - 0.1],
         [coordinates.lat + 0.1, coordinates.lng + 0.1],
         [coordinates.lat - 0.1, coordinates.lng + 0.1]
-      ]).addTo(map);
+      ]);
+
+      // Añadir la nueva capa al mapa
+      zonaLayer = L.layerGroup([zonaPolygon]).addTo(map);
     }
   </script>
 </body>
 </html>
+
 
 
