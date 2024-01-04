@@ -14,8 +14,7 @@
     <script src="https://www.gstatic.com/firebasejs/7.15.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.15.0/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCGkOZ6ZpmOXnNsS-JJlt81bixb6oDOKZo&libraries=places&callback=initMap"></script>
-
+    
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -136,7 +135,9 @@
 
         function geocodeLocation(ubicacion) {
             // Obtén el geocodificador desde el mapa
-            var geocoder = map.getControl('geocoder');
+            var geocoder = L.Control.geocoder({
+                geocoder: L.Control.Geocoder.nominatim(),
+            }).addTo(map);
 
             geocoder.geocode(ubicacion, function (results) {
                 if (results && results.length > 0) {
