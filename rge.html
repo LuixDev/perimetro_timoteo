@@ -116,30 +116,31 @@
 
         llenarPaises();
 
-        function llenarCiudades() {
-            var paisSeleccionado = document.getElementById('pais').value;
+      function llenarCiudades() {
+    var paisSeleccionado = document.getElementById('pais').value;
 
-            // Verifica que haya un país seleccionado
-            if (!paisSeleccionado) {
-                console.error('Seleccione un país antes de obtener la lista de ciudades.');
-                return;
+    // Verifica que haya un país seleccionado
+    if (!paisSeleccionado) {
+        console.error('Seleccione un país antes de obtener la lista de ciudades.');
+        return;
+    }
+
+    var ciudadesApiUrl = 'https://nominatim.openstreetmap.org/search?country=' + encodeURIComponent(paisSeleccionado) + '&format=json';
+
+    fetch(ciudadesApiUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (Array.isArray(data) && data.length > 0) {
+                var ciudades = data.map(ciudad => ciudad.display_name);
+                llenarSelect('ciudad', ciudades);
+                llenarBarrios();
+            } else {
+                throw new Error('Error en la solicitud de la lista de ciudades.');
             }
+        })
+        .catch(error => console.error('Error al obtener la lista de ciudades:', error));
+}
 
-            var ciudadesApiUrl = 'https://nominatim.openstreetmap.org/search?country=' + encodeURIComponent(paisSeleccionado) + '&format=json';
-
-            fetch(ciudadesApiUrl)
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.error) {
-                        var ciudades = data.map(ciudad => ciudad.display_name);
-                        llenarSelect('ciudad', ciudades);
-                        llenarBarrios();
-                    } else {
-                        throw new Error('Error en la solicitud de la lista de ciudades.');
-                    }
-                })
-                .catch(error => console.error('Error al obtener la lista de ciudades:', error));
-        }
 
         function llenarBarrios() {
             var paisSeleccionado = document.getElementById('pais').value;
