@@ -78,24 +78,8 @@
         var database = firebase.database();
         var map;
         var drawnItems;
-
         var ctx = document.getElementById('chart').getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Your Dataset',
-                    data: [],
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                // Your chart options go here
-            }
-        });
+        var myChart;
 
         function initMap() {
             map = L.map('map').setView([0, 0], 2);
@@ -168,14 +152,35 @@
         }
 
         function updateChart(data) {
-            // Assuming 'data' contains the required information for the chart
-            // Update the chart labels and data based on your data structure
-            myChart.data.labels = ['Label1', 'Label2']; // Update with your labels
-            myChart.data.datasets[0].data = [10, 20]; // Update with your data values
+            // Implement logic to update the chart based on your data
+            // For example, assuming 'data' has an array of values
+            myChart.data.labels = data.labels || [];
+            myChart.data.datasets[0].data = data.values || [];
             myChart.update();
         }
 
+        // Initialize the map and chart
         initMap();
+
+        // Create an empty chart initially
+        myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Your Dataset',
+                    data: [],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                // Your chart options go here
+            }
+        });
+
+        // Start updating the dashboard
         actualizarDashboard();
     </script>
 
@@ -183,6 +188,3 @@
 </body>
 
 </html>
-
-
-
