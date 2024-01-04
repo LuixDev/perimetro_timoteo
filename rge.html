@@ -19,37 +19,54 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
   <script>
-    // Inicializar el mapa
     var map = L.map('map').setView([0, 0], 2);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    // Agregar un control de búsqueda
     var searchControl = L.Control.geocoder({
       defaultMarkGeocode: false
     }).on('markgeocode', function (e) {
       map.setView(e.geocode.center, 13);
-      subrayarArea(e.geocode.center);
+      subrayarArea(e.geocode);
     }).addTo(map);
 
-    // Función para buscar ubicación
     function buscarUbicacion() {
       var searchTerm = document.getElementById('searchInput').value;
       searchControl.geocode(searchTerm);
     }
 
-    // Función para subrayar una zona en el mapa
-    function subrayarArea(coordinates) {
-      // Ajusta las coordenadas para hacer el subrayado más pequeño
-      var polygon = L.polygon([
-        [coordinates.lat - 0.51, coordinates.lng - 0.51],
-        [coordinates.lat + 0.51, coordinates.lng - 0.51],
-        [coordinates.lat + 0.51, coordinates.lng + 0.51],
-        [coordinates.lat - 0.51, coordinates.lng + 0.51]
-      ]).addTo(map);
+    function subrayarArea(geocode) {
+      if (map.hasLayer(zonaLayer)) {
+        map.removeLayer(zonaLayer);
+      }
+
+      // Adaptar el subrayado según el tipo de geometría devuelta
+      var coordinates;
+
+      if (geocode.geometry.type === 'Point') {
+        // Si es un punto (ciudad o barrio), usa un círculo
+        coordinates = geocode.geometry.coordinates;
+        var radio = 5000;  // Ajusta el tamaño del círculo según tus necesidades
+        var zonaCircle = L.circle(coordinates, {
+          color: 'red',
+          fillOpacity: 0.5,
+          radius: radio
+        });
+        zonaLayer = L.layerGroup([zonaCircle]).addTo(map);
+      } else if (geocode.geometry.type === 'Polygon') {
+        // Si es un polígono (país), usa el polígono devuelto
+        coordinates = geocode.geometry.coordinates[0];
+        var zonaPolygon = L.polygon(coordinates, {
+          color: 'red',
+          fillOpacity: 0.5,
+        });
+        zonaLayer = L.layerGroup([zonaPolygon]).addTo(map);
+      }
+      // Puedes agregar más casos según el tipo de geometría devuelta por la búsqueda
     }
   </script>
 </body>
 </html>
+
 
 
 
