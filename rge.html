@@ -9,9 +9,10 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.15.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.15.0/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCGkOZ6ZpmOXnNsS-JJlt81bixb6oDOKZo&libraries=places&callback=initMap"></script>
 
     <style>
         body {
@@ -83,19 +84,13 @@
         var myChart;
 
         function initMap() {
-            // Check if the map exists, and if so, remove it
-            if (map) {
-                map.remove();
-            }
-
-            // Initialize the map
             map = L.map('map').setView([0, 0], 2);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
 
             drawnItems = new L.FeatureGroup();
-            map.addLayer(drawnItems);  // Add the 'drawnItems' layer to the map first
+            map.addLayer(drawnItems);
 
             var drawControl = new L.Control.Draw({
                 draw: {
@@ -113,7 +108,8 @@
 
             map.on('draw:created', function (e) {
                 var layer = e.layer;
-                actualizarMapa(layer.getLatLngs());
+                drawnItems.clearLayers();
+                drawnItems.addLayer(layer);
                 guardarCoordenadas(layer.getLatLngs());
             });
         }
@@ -189,8 +185,6 @@
         // Start updating the dashboard
         actualizarDashboard();
     </script>
-
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCGkOZ6ZpmOXnNsS-JJlt81bixb6oDOKZo&libraries=places&callback=initMap"></script>
 </body>
 
 </html>
