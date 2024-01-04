@@ -117,8 +117,7 @@
 
             map.on('draw:created', function (e) {
                 var layer = e.layer;
-                drawnItems.clearLayers();
-                drawnItems.addLayer(layer);
+                actualizarMapa(layer.getLatLngs());
                 guardarCoordenadas(layer.getLatLngs());
             });
         }
@@ -149,9 +148,14 @@
         }
 
         function actualizarMapa(coordenadas) {
+            // Clear existing layers
             drawnItems.clearLayers();
-            var polygon = L.polygon(coordenadas).addTo(drawnItems);
-            map.fitBounds(polygon.getBounds());
+
+            // Check if the coordinates are not null
+            if (coordenadas) {
+                var polygon = L.polygon(coordenadas).addTo(drawnItems);
+                map.fitBounds(polygon.getBounds());
+            }
         }
 
         function actualizarDashboard() {
@@ -200,6 +204,5 @@
 </body>
 
 </html>
-
 
 
