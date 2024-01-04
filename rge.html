@@ -155,8 +155,8 @@
 
         function actualizarMapa(coordenadas) {
             drawnItems.clearLayers();
-            var marker = L.marker(coordenadas).addTo(drawnItems);
-            map.setView(coordenadas, 12);
+            var polygon = L.polygon(coordenadas).addTo(drawnItems);
+            map.fitBounds(polygon.getBounds());
         }
 
         function actualizarDashboard() {
@@ -183,4 +183,5 @@
 </body>
 
 </html>
+
 
