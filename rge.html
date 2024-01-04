@@ -63,8 +63,7 @@
     </div>
 
     <script>
-        // Configuración de Firebase
-     const firebaseConfig = {
+        const firebaseConfig = {
             apiKey: "AIzaSyDa-sfn2Of0hF7UAjWr-ZXcUXYAy52sZOA",
             authDomain: "erthrth-2fea7.firebaseapp.com",
             databaseURL: "https://erthrth-2fea7-default-rtdb.firebaseio.com",
@@ -74,13 +73,29 @@
             appId: "1:422701116092:web:a4eddd98bad83835397eb9",
             measurementId: "G-CXS7KTMSC6"
         };
-        // Inicializa Firebase con la configuración
-        firebase.initializeApp(firebaseConfig);
 
-        // Obtiene una referencia a la base de datos
+        firebase.initializeApp(firebaseConfig);
         var database = firebase.database();
         var map;
         var drawnItems;
+
+        var ctx = document.getElementById('chart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Your Dataset',
+                    data: [],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                // Your chart options go here
+            }
+        });
 
         function initMap() {
             map = L.map('map').setView([0, 0], 2);
@@ -109,8 +124,6 @@
                 var layer = e.layer;
                 drawnItems.clearLayers();
                 drawnItems.addLayer(layer);
-
-                // Guarda las coordenadas en Firebase Realtime Database
                 guardarCoordenadas(layer.getLatLngs());
             });
         }
@@ -118,30 +131,21 @@
         function buscarLugar() {
             var ubicacionInput = document.getElementById('ubicacion');
             var ubicacion = ubicacionInput.value;
-
-            // Utiliza el servicio de geocodificación de Google Maps para obtener coordenadas
             geocodeLocation(ubicacion);
         }
 
         function guardarCoordenadas(coordenadas) {
-            // Obtiene una referencia a la ubicación en la base de datos
             var ubicacionRef = database.ref('ubicacion');
-
-            // Guarda las coordenadas en la base de datos
             ubicacionRef.set({
                 coordenadas: coordenadas
             });
         }
 
         function geocodeLocation(ubicacion) {
-            // Utiliza el servicio de geocodificación de Google Maps
             var geocoder = new google.maps.Geocoder();
-
             geocoder.geocode({ address: ubicacion }, function (results, status) {
                 if (status === 'OK' && results[0].geometry) {
                     var ubicacion = results[0].geometry.location;
-
-                    // Actualiza el mapa con las coordenadas obtenidas
                     actualizarMapa([ubicacion.lat(), ubicacion.lng()]);
                 } else {
                     console.error('Error al geocodificar la ubicación.');
@@ -150,25 +154,33 @@
         }
 
         function actualizarMapa(coordenadas) {
-            // Elimina el polígono anterior si existe
             drawnItems.clearLayers();
-
-            // Crea un marcador con las coordenadas
             var marker = L.marker(coordenadas).addTo(drawnItems);
-
-            // Centra el mapa en el marcador
             map.setView(coordenadas, 12);
         }
 
         function actualizarDashboard() {
-            // Implementa la lógica para actualizar el dashboard con datos reales
+            var ubicacionRef = database.ref('ubicacion');
+            ubicacionRef.on('value', function (snapshot) {
+                var data = snapshot.val();
+                updateChart(data);
+            });
         }
 
-        // Llama a la función para inicializar el mapa
+        function updateChart(data) {
+            // Assuming 'data' contains the required information for the chart
+            // Update the chart labels and data based on your data structure
+            myChart.data.labels = ['Label1', 'Label2']; // Update with your labels
+            myChart.data.datasets[0].data = [10, 20]; // Update with your data values
+            myChart.update();
+        }
+
         initMap();
+        actualizarDashboard();
     </script>
 
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCGkOZ6ZpmOXnNsS-JJlt81bixb6oDOKZo&libraries=places&callback=initMap"></script>
 </body>
 
 </html>
+
