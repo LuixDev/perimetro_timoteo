@@ -6,9 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa y Dashboard con Leaflet</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <!-- Utiliza la versión 8.x de Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -50,6 +47,10 @@
             text-align: center;
         }
 
+        canvas {
+            max-width: 100%;
+        }
+
         .numero-marcador {
             background-color: #3498db;
             color: #fff;
@@ -79,9 +80,11 @@
     </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js"></script>
     <script>
         // Configura tu proyecto de Firebase
-        var firebaseConfig = {
+        const firebaseConfig = {
             apiKey: "AIzaSyDa-sfn2Of0hF7UAjWr-ZXcUXYAy52sZOA",
             authDomain: "erthrth-2fea7.firebaseapp.com",
             databaseURL: "https://erthrth-2fea7-default-rtdb.firebaseio.com",
@@ -138,11 +141,19 @@
 
         function llenarCiudades() {
             var paisSeleccionado = document.getElementById('pais').value;
+
+            // Verifica si se ha seleccionado un país
+            if (!paisSeleccionado) {
+                console.error('No se ha seleccionado un país');
+                return;
+            }
+
             var ciudadesApiUrl = 'https://nominatim.openstreetmap.org/search?country=' + encodeURIComponent(paisSeleccionado) + '&format=json';
 
             fetch(ciudadesApiUrl)
                 .then(response => response.json())
                 .then(data => {
+                    // Aquí deberías verificar que data es un array antes de intentar mapearlo
                     var ciudades = data.map(ciudad => ciudad.display_name);
                     llenarSelect('ciudad', ciudades);
                     llenarBarrios();
@@ -214,7 +225,7 @@
             // Por ahora, usaremos datos de ejemplo
             var datosEjemplo = [10, 20, 30]; // Reemplaza esto con datos reales
 
-            // Actualiza el dashboard con la cantidad de marcadores
+            // Actualiza el dashboard con los datos
             var dashboard = document.getElementById('dashboard');
             dashboard.innerHTML = '<h2>Dashboard</h2>' +
                 '<p>Cantidad de Marcadores: ' + datosEjemplo.length + '</p>';
@@ -261,6 +272,12 @@
                     .addTo(map)
                     .bindPopup(marcador.mensaje);
             });
+
+            // Actualiza el dashboard con la cantidad de marcadores
+            var cantidadMarcadores = marcadores.length;
+            var dashboard = document.getElementById('dashboard');
+            dashboard.innerHTML = '<h2>Dashboard</h2>' +
+                '<p>Cantidad de Marcadores: ' + cantidadMarcadores + '</p>';
         }
     </script>
 
@@ -268,6 +285,7 @@
 </body>
 
 </html>
+
 
 
 
