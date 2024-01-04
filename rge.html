@@ -12,6 +12,24 @@
     <script src="https://www.gstatic.com/firebasejs/7.15.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.15.0/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div id="container">
+        <div>
+            <label for="ubicacion">Ubicación:</label>
+            <input type="text" id="ubicacion" placeholder="Escribe una ubicación (ciudad, país, barrio)">
+            <button onclick="buscarLugar()">Buscar Lugar</button>
+        </div>
+
+        <div id="map"></div>
+
+        <div id="dashboard">
+            <h2>Dashboard</h2>
+            <canvas id="chart"></canvas>
+        </div>
+    </div>
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDa-sfn2Of0hF7UAjWr-ZXcUXYAy52sZOA",
@@ -28,11 +46,11 @@
         var database = firebase.database();
         var map;
         var drawnItems;
-        var ctx = document.getElementById('chart').getContext('2d');
+        var ctx;
         var myChart;
 
         function initMap() {
-            if (!map) {  // Asegura que el mapa no se inicialice más de una vez
+            if (!map) {
                 map = L.map('map').setView([0, 0], 2);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '© OpenStreetMap contributors'
@@ -117,27 +135,37 @@
             myChart.update();
         }
 
-        // Initialize the chart with empty data
         document.addEventListener('DOMContentLoaded', function () {
-            var map = initMap();
-            loadGoogleMapsScript();
-            myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Your Dataset',
-                        data: [],
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    // Your chart options go here
-                }
-            });
-            actualizarDashboard();
+            // Ensure 'chart' element is present in the DOM
+            var chartElement = document.getElementById('chart');
+            if (chartElement) {
+                ctx = chartElement.getContext('2d');
+
+                // Initialize the chart with empty data
+                myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Your Dataset',
+                            data: [],
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        // Your chart options go here
+                    }
+                });
+
+                // Initialize the map after chart is ready
+                var map = initMap();
+                loadGoogleMapsScript();
+                actualizarDashboard();
+            } else {
+                console.error('Element with id "chart" not found.');
+            }
         });
 
         function loadGoogleMapsScript() {
@@ -147,27 +175,9 @@
             document.head.appendChild(script);
         }
     </script>
-</head>
-
-<body>
-    <div id="container">
-        <div>
-            <label for="ubicacion">Ubicación:</label>
-            <input type="text" id="ubicacion" placeholder="Escribe una ubicación (ciudad, país, barrio)">
-            <button onclick="buscarLugar()">Buscar Lugar</button>
-        </div>
-
-        <div id="map"></div>
-
-        <div id="dashboard">
-            <h2>Dashboard</h2>
-            <canvas id="chart"></canvas>
-        </div>
-    </div>
 </body>
 
 </html>
-
 
 
 
