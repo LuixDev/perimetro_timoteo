@@ -5,11 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa y Dashboard</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+    <!-- Use a specific version of Firebase (version 8) to avoid the module-related issues -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Load Leaflet from CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
 
     <style>
         body {
@@ -62,8 +66,8 @@
     </div>
 
     <script>
-        // Initialize Firebase
-        const firebaseConfig = {
+        // Use a specific version of Firebase (version 8) to avoid the module-related issues
+        var firebaseConfig = {
             apiKey: "AIzaSyDa-sfn2Of0hF7UAjWr-ZXcUXYAy52sZOA",
             authDomain: "erthrth-2fea7.firebaseapp.com",
             databaseURL: "https://erthrth-2fea7-default-rtdb.firebaseio.com",
@@ -189,5 +193,6 @@
 </body>
 
 </html>
+
 
 
