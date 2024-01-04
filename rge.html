@@ -39,26 +39,17 @@
 
     // Función para subrayar una zona en el mapa
     function subrayarArea(coordinates) {
-      // Limpiar capa anterior si existe
-      if (map.hasLayer(zonaLayer)) {
-        map.removeLayer(zonaLayer);
-      }
-
-      // Ajusta el radio para hacer el subrayado más pequeño
-      var radio = 500;  // Cambia este valor según tus necesidades
-
-      // Crea una nueva capa con el círculo
-      var zonaCircle = L.circle(coordinates, {
-        color: 'red',
-        fillOpacity: 0.5,
-        radius: radio
-      });
-
-      // Añadir la nueva capa al mapa
-      zonaLayer = L.layerGroup([zonaCircle]).addTo(map);
+      // Ajusta las coordenadas para hacer el subrayado más pequeño
+      var polygon = L.polygon([
+        [coordinates.lat - 0.01, coordinates.lng - 0.01],
+        [coordinates.lat + 0.01, coordinates.lng - 0.01],
+        [coordinates.lat + 0.01, coordinates.lng + 0.01],
+        [coordinates.lat - 0.01, coordinates.lng + 0.01]
+      ]).addTo(map);
     }
   </script>
 </body>
 </html>
+
 
 
