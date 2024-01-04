@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mapa Interactivo</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
   <style>
     #map {
       height: 500px;
@@ -12,30 +13,44 @@
   </style>
 </head>
 <body>
+ 
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
   <script>
     // Inicializar el mapa
     var map = L.map('map').setView([0, 0], 2);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    // Definir las coordenadas de la zona a subrayar
-    var zonaCoordinates = [
-      [0.1, -0.1],
-      [0.1, 0.1],
-      [-0.1, 0.1],
-      [-0.1, -0.1]
-    ];
+    // Agregar un control de búsqueda
+    var searchControl = L.Control.geocoder({
+      defaultMarkGeocode: false
+    }).on('markgeocode', function (e) {
+      map.setView(e.geocode.center, 13);
+      subrayarArea(e.geocode.center);
+    }).addTo(map);
 
-    // Dibujar polígono para subrayar la zona
-    var polygon = L.polygon(zonaCoordinates, { color: 'red' }).addTo(map);
+    // Función para buscar ubicación
+    function buscarUbicacion() {
+      var searchTerm = document.getElementById('searchInput').value;
+      searchControl.geocode(searchTerm);
+    }
 
-    // Centrar el mapa en la zona
-    var bounds = polygon.getBounds();
-    map.fitBounds(bounds);
-
+    // Función para subrayar una zona en el mapa
+    function subrayarArea(coordinates) {
+      // Aquí puedes agregar lógica para dibujar polígonos o polilíneas en la zona específica
+      // Por ejemplo, puedes usar L.polygon o L.polyline de Leaflet
+      // Nota: Este es un ejemplo muy básico y debe adaptarse a tus necesidades
+      var polygon = L.polygon([
+        [coordinates.lat - 0.1, coordinates.lng - 0.1],
+        [coordinates.lat + 0.1, coordinates.lng - 0.1],
+        [coordinates.lat + 0.1, coordinates.lng + 0.1],
+        [coordinates.lat - 0.1, coordinates.lng + 0.1]
+      ]).addTo(map);
+    }
   </script>
 </body>
 </html>
+
 
