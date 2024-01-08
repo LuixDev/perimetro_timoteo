@@ -4,14 +4,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa y Dashboard con Leaflet</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <title>Mapa y Dashboard</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=TU_API_KEY&libraries=places"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
+        }
+
+        #container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
 
         #map {
@@ -50,25 +60,32 @@
         canvas {
             max-width: 100%;
         }
-
-        .numero-marcador {
-            background-color: #3498db;
-            color: #fff;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 30px;
-        }
     </style>
 </head>
 
 <body>
     <div>
         <label for="ciudad">Ciudad:</label>
-        <select id="ciudad"></select>
+        <select id="ciudad">
+            <!-- Opciones de ciudades reales -->
+            <option value="Paris">París</option>
+            <option value="New York">Nueva York</option>
+            <!-- Agrega más ciudades según tu necesidad -->
+        </select>
         <label for="barrio">Barrio:</label>
-        <select id="barrio"></select>
+        <select id="barrio">
+            <!-- Opciones de barrios reales -->
+            <option value="Manhattan">Manhattan</option>
+            <option value="Le Marais">Le Marais</option>
+            <!-- Agrega más barrios según tu necesidad -->
+        </select>
         <label for="pais">País:</label>
-        <select id="pais"></select>
+        <select id="pais">
+            <!-- Opciones de países reales -->
+            <option value="France">Francia</option>
+            <option value="USA">Estados Unidos</option>
+            <!-- Agrega más países según tu necesidad -->
+        </select>
         <button onclick="buscarLugar()">Buscar Lugar</button>
     </div>
 
@@ -76,159 +93,127 @@
 
     <div>
         <h2>Dashboard</h2>
-        <div id="dashboard"></div>
+        <canvas id="chart"></canvas>
     </div>
 
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         var map;
-        var marker;
+        var polygon;
 
         function initMap() {
-            map = L.map('map').setView([0, 0], 2);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        }
-
-        document.getElementById('pais').addEventListener('change', llenarCiudades);
-
-        function llenarSelect(elementId, options) {
-            var select = document.getElementById(elementId);
-            select.innerHTML = '<option value="">Seleccione...</option>';
-
-            options.forEach(function (option) {
-                var optionElement = document.createElement('option');
-                optionElement.value = option;
-                optionElement.textContent = option;
-                select.appendChild(optionElement);
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 0, lng: 0 },
+                zoom: 2
             });
         }
-
-        function llenarPaises() {
-            fetch('https://restcountries.com/v3.1/all')
-                .then(response => response.json())
-                .then(data => {
-                    var paises = data.map(pais => pais.name.common);
-                    llenarSelect('pais', paises);
-                    llenarCiudades();
-                })
-                .catch(error => console.error('Error al obtener la lista de países:', error));
-        }
-
-        llenarPaises();
-
-       function llenarCiudades() {
-    var paisSeleccionado = document.getElementById('pais').value;
-
-    // Verifica que haya un país seleccionado
-    if (!paisSeleccionado) {
-        console.error('Seleccione un país antes de obtener la lista de ciudades.');
-        return;
-    }
-
-    var apiKey = '77eb71c352e742679d4866dda3c43bcd'; // Reemplaza con tu clave de API de OpenCage
-    var ciudadesApiUrl = `https://api.opencagedata.com/geocode/v1/json?q=${paisSeleccionado}&key=${apiKey}&limit=5`;
-
-    fetch(ciudadesApiUrl)
-        .then(response => response.json())
-        .then(data => {
-            if (data.results.length > 0) {
-                var ciudades = data.results.map(ciudad => ciudad.formatted);
-                llenarSelect('ciudad', ciudades);
-                llenarBarrios();
-            } else {
-                throw new Error('Error en la solicitud de la lista de ciudades.');
-            }
-        })
-        .catch(error => console.error('Error al obtener la lista de ciudades:', error));
-}
-
-
-        function llenarBarrios() {
-            var paisSeleccionado = document.getElementById('pais').value;
-            var ciudadSeleccionada = document.getElementById('ciudad').value;
-
-            if (!ciudadSeleccionada) {
-                console.error('Seleccione una ciudad antes de obtener la lista de barrios.');
-                return;
-            }
-
-            var apiKey = '77eb71c352e742679d4866dda3c43bcd'; // Reemplaza con tu clave de API de OpenCage
-            var barriosApiUrl = `https://api.opencagedata.com/geocode/v1/json?q=${ciudadSeleccionada}&key=${apiKey}`;
-
-            fetch(barriosApiUrl)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.results.length > 0) {
-                        var barrios = data.results.map(barrio => barrio.components.neighbourhood);
-                        llenarSelect('barrio', barrios);
-                    } else {
-                        throw new Error('Error en la solicitud de la lista de barrios.');
-                    }
-                })
-                .catch(error => console.error('Error al obtener la lista de barrios:', error));
-        }
-
-        document.getElementById('ciudad').addEventListener('change', buscarLugar);
-        document.getElementById('barrio').addEventListener('change', buscarLugar);
-        document.getElementById('pais').addEventListener('change', buscarLugar);
 
         function buscarLugar() {
             var ciudadSeleccionada = document.getElementById('ciudad').value;
             var barrioSeleccionado = document.getElementById('barrio').value;
             var paisSeleccionado = document.getElementById('pais').value;
 
-            var direccion = ciudadSeleccionada + ', ' + paisSeleccionado;
+            // Aquí deberías llamar a tu backend o API para obtener las coordenadas reales de la ubicación seleccionada
+            // Por ahora, usaremos coordenadas de ejemplo
+            var coordenadasEjemplo = obtenerCoordenadas(ciudadSeleccionada);
 
-            obtenerCoordenadas(direccion)
-                .then(coordenadas => {
-                    // Actualiza el mapa
-                    actualizarMapa(coordenadas);
-                    // Actualiza el dashboard
-                    actualizarDashboard();
-                })
-                .catch(error => console.error('Error al obtener coordenadas:', error));
+            // Actualiza el mapa
+            actualizarMapa(coordenadasEjemplo);
+
+            // Actualiza el dashboard (aquí puedes llamar a tu backend para obtener datos reales)
+            actualizarDashboard();
         }
 
-        function obtenerCoordenadas(direccion) {
-            var apiKey = '77eb71c352e742679d4866dda3c43bcd'; // Reemplaza con tu clave de API de OpenCage
-            var geocodingApiUrl = `https://api.opencagedata.com/geocode/v1/json?q=${direccion}&key=${apiKey}`;
+        function obtenerCoordenadas(ciudad) {
+            // En un escenario real, esta función debería hacer una solicitud al backend para obtener las coordenadas reales
+            // Aquí proporcionamos coordenadas de ejemplo para París, Nueva York y otras ciudades
+            var coordenadasPorCiudad = {
+                'Paris': [
+                    { lat: 48.8566, lng: 2.3522 },
+                    { lat: 48.8566, lng: 2.3522 + 0.1 },
+                    { lat: 48.8566 + 0.1, lng: 2.3522 + 0.1 },
+                    { lat: 48.8566 + 0.1, lng: 2.3522 },
+                ],
+                'New York': [
+                    { lat: 40.7128, lng: -74.0060 },
+                    { lat: 40.7128, lng: -74.0060 + 0.1 },
+                    { lat: 40.7128 + 0.1, lng: -74.0060 + 0.1 },
+                    { lat: 40.7128 + 0.1, lng: -74.0060 },
+                ],
+                // Agrega más coordenadas según tu necesidad
+            };
 
-            return fetch(geocodingApiUrl)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.results.length > 0) {
-                        return [data.results[0].geometry.lat, data.results[0].geometry.lng];
-                    } else {
-                        throw new Error('No se encontraron resultados para la dirección: ' + direccion);
-                    }
-                });
+            return coordenadasPorCiudad[ciudad] || [];
         }
 
         function actualizarMapa(coordenadas) {
-            if (marker) {
-                map.removeLayer(marker);
+            // Elimina el polígono anterior si existe
+            if (polygon) {
+                polygon.setMap(null);
             }
 
-            marker = L.marker(coordenadas).addTo(map);
+            // Crea un polígono con las coordenadas
+            polygon = new google.maps.Polygon({
+                paths: coordenadas,
+                strokeColor: '#3498db',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: '#3498db',
+                fillOpacity: 0.2,
+            });
 
-            map.setView(coordenadas, 12);
+            // Calcula el punto medio del polígono
+            var bounds = new google.maps.LatLngBounds();
+            coordenadas.forEach(function (coordenada) {
+                bounds.extend(new google.maps.LatLng(coordenada.lat, coordenada.lng));
+            });
+
+            // Centra el mapa en el punto medio del polígono
+            map.fitBounds(bounds);
+
+            // Dibuja el polígono en el mapa
+            polygon.setMap(map);
         }
 
         function actualizarDashboard() {
-            // Actualiza el dashboard con datos de ejemplo
-            var datosEjemplo = [10, 20, 30];
-            var dashboard = document.getElementById('dashboard');
-            dashboard.innerHTML = '<h2>Dashboard</h2>' +
-                '<p>Dato 1: ' + datosEjemplo[0] + '</p>' +
-                '<p>Dato 2: ' + datosEjemplo[1] + '</p>' +
-                '<p>Dato 3: ' + datosEjemplo[2] + '</p>';
-        }
+            // Aquí deberías llamar a tu backend o API para obtener datos reales para el dashboard
+            // Por ahora, usaremos datos de ejemplo
+            var datosEjemplo = [10, 20, 30]; // Reemplaza esto con datos reales
 
-        // Inicializa el mapa
-        initMap();
+            // Actualiza el gráfico con los datos
+            var ctx = document.getElementById('chart').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Dato 1', 'Dato 2', 'Dato 3'],
+                    datasets: [{
+                        label: 'Ejemplo de Datos',
+                        data: datosEjemplo,
+                        backgroundColor: [
+                            'rgba(52, 152, 219, 0.5)',
+                            'rgba(155, 89, 182, 0.5)',
+                            'rgba(46, 204, 113, 0.5)',
+                        ],
+                        borderColor: [
+                            'rgba(52, 152, 219, 1)',
+                            'rgba(155, 89, 182, 1)',
+                            'rgba(46, 204, 113, 1)',
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
     </script>
+
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCGkOZ6ZpmOXnNsS-JJlt81bixb6oDOKZo&callback=initMap"></script>
 </body>
 
 </html>
-
 
